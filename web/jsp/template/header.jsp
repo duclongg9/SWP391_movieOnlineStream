@@ -35,6 +35,7 @@
         </div>
 
         <a href="/api/auth/login" class="btn btn-primary">Sign in</a>
+        <a href="/api/auth/register" class="btn">Register</a>
 
       </div>
 

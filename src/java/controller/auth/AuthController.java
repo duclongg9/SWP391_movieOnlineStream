@@ -35,9 +35,18 @@ public class AuthController extends HttpServlet {
         if ("/api/auth/register".equals(path)) {
             String email = req.getParameter("email");
             String password = req.getParameter("password");
+            if (email == null || password == null || email.isEmpty() || password.isEmpty()) {
+                resp.setStatus(400);
+                out.write("{\"error\":\"missing fields\"}");
+                return;
+            }
+
+
             boolean ok = UserDAO.createUser(email, PasswordUtil.hash(password));
             if (ok) {
-                out.write("{\"status\":\"registered\"}");
+                String token = JwtUtil.generateToken(email);
+                resp.setStatus(201);
+                out.write("{\"token\":\"" + token + "\"}");
             } else {
                 resp.setStatus(400);
                 out.write("{\"error\":\"register failed\"}");
@@ -46,6 +55,13 @@ public class AuthController extends HttpServlet {
             String email = req.getParameter("email");
             String password = req.getParameter("password");
             User u = UserDAO.validateUser(email, password);
+            if (email == null || password == null || email.isEmpty() || password.isEmpty()) {
+                resp.setStatus(400);
+                out.write("{\"error\":\"missing fields\"}");
+                return;
+            }
+
+
             if (u != null) {
                 String token = JwtUtil.generateToken(email);
                 out.write("{\"token\":\"" + token + "\"}");

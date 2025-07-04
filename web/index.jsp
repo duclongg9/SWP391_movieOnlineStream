@@ -40,37 +40,37 @@
       <!-- 
         - #HERO
       -->
-<jsp:include page="jsp/section/hero.jsp" />
+<jsp:include page="jsp//hero.jsp" />
 
       
       <!-- 
         - #UPCOMING
       -->
-<jsp:include page="jsp/section/upcoming.jsp" />
+<jsp:include page="jsp//upcoming.jsp" />
       
 
       <!-- 
         - #SERVICE
       -->
-<jsp:include page="jsp/section/service.jsp" />
+<jsp:include page="jsp//service.jsp" />
       
 
       <!-- 
         - #TOP RATED
       -->
-<jsp:include page="jsp/section/top-rated.jsp" />
+<jsp:include page="jsp//top-rated.jsp" />
       
 
       <!-- 
         - #TV SERIES
       -->
-<jsp:include page="jsp/section/tv-series.jsp" />
+<jsp:include page="jsp//tv-series.jsp" />
       
 
       <!-- 
         - #CTA
       -->
-<jsp:include page="jsp/section/cta.jsp" />
+<jsp:include page="jsp/template/cta.jsp" />
       
 
     </article>
