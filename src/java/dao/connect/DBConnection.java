@@ -1,0 +1,41 @@
+package dao.connect;
+
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
+
+public class DBConnection {
+    private static final String URL = "jdbc:mysql://localhost:3306/online_film";
+    private static final String USER = "root"; 
+    private static final String PASSWORD = "123456"; 
+
+    // Hàm lấy kết nối mới mỗi lần được gọi
+    public static Connection getConnection() {
+        Connection conn = null;
+        try {
+            Class.forName("com.mysql.cj.jdbc.Driver");
+            conn = DriverManager.getConnection(URL, USER, PASSWORD);
+            System.out.println("Kết nối thành công đến database!");
+        } catch (ClassNotFoundException e) {
+            System.err.println("Lỗi: Không tìm thấy driver JDBC!");
+            e.printStackTrace();
+        } catch (SQLException e) {
+            System.err.println("Lỗi: Không thể kết nối đến database!");
+            e.printStackTrace();
+        }
+        return conn;
+    }
+
+    // Đóng kết nối sau khi sử dụng
+    public static void closeConnection(Connection conn) {
+        try {
+            if (conn != null && !conn.isClosed()) {
+                conn.close();
+                System.out.println("Đã đóng kết nối database.");
+            }
+        } catch (SQLException e) {
+            System.err.println("Lỗi khi đóng kết nối database!");
+            e.printStackTrace();
+        }
+    }
+}
