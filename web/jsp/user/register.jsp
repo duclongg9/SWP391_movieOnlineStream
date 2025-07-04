@@ -1,0 +1,21 @@
+<%-- 
+    Document   : register
+    Created on : 4 Jul 2025, 13:20:20
+    Author     : Dell-PC
+--%>
+
+<%@ page contentType="text/html; charset=UTF-8" %>
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Register</title>
+</head>
+<body>
+<h2>Register</h2>
+<form method="post" action="/api/auth/register">
+    Email: <input type="email" name="email" /> <br/>
+    Password: <input type="password" name="password" /> <br/>
+    <input type="submit" value="Register" />
+</form>
+</body>
+</html>

@@ -87,3 +87,33 @@ CREATE TABLE watch_history (
     FOREIGN KEY (user_id) REFERENCES users(user_id),
     FOREIGN KEY (film_id) REFERENCES film(film_id)
 );
+CREATE DATABASE IF NOT EXISTS online_film DEFAULT CHARACTER SET utf8mb4;
+USE online_film;
+
+-- User Table
+CREATE TABLE IF NOT EXISTS users (
+  id INT PRIMARY KEY AUTO_INCREMENT,
+  email VARCHAR(255) UNIQUE,
+  password VARCHAR(255),
+  sso_provider ENUM('google','facebook') NULL,
+  point_balance INT DEFAULT 0,
+  is_locked BOOLEAN DEFAULT FALSE,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Movie Table
+CREATE TABLE IF NOT EXISTS movies (
+  id INT PRIMARY KEY AUTO_INCREMENT,
+  title VARCHAR(255),
+  genre VARCHAR(100),
+  actor VARCHAR(255),
+  price_point INT,
+  is_deleted BOOLEAN DEFAULT FALSE,
+  encrypted BOOLEAN DEFAULT TRUE
+);
+
+-- Sample data
+INSERT INTO movies(title, genre, actor, price_point)
+VALUES
+ ('The Northman','Action','Alexander Skarsgård',50),
+ ('Doctor Strange in the Multiverse of Madness','Fantasy','Benedict Cumberbatch',60);
