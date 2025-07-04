@@ -12,6 +12,7 @@
 </head>
 <body>
 <h2>Login</h2>
+<p><a href="/movies">Back to Home</a></p>
 <form method="post" action="/api/auth/login">
     Email: <input type="email" name="email" /> <br/>
     Password: <input type="password" name="password" /> <br/>
