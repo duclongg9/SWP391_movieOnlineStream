@@ -40,31 +40,31 @@
       <!-- 
         - #HERO
       -->
-<jsp:include page="jsp//hero.jsp" />
+<jsp:include page="jsp/template/hero.jsp" />
 
       
       <!-- 
         - #UPCOMING
       -->
-<jsp:include page="jsp//upcoming.jsp" />
+<jsp:include page="jsp/template/upcoming.jsp" />
       
 
       <!-- 
         - #SERVICE
       -->
-<jsp:include page="jsp//service.jsp" />
+<jsp:include page="jsp/template/service.jsp" />
       
 
       <!-- 
         - #TOP RATED
       -->
-<jsp:include page="jsp//top-rated.jsp" />
+<jsp:include page="jsp/template/top_rated.jsp" />
       
 
       <!-- 
         - #TV SERIES
       -->
-<jsp:include page="jsp//tv-series.jsp" />
+<jsp:include page="jsp/template/tv_series.jsp" />
       
 
       <!-- 

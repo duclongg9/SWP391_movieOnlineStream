@@ -1,3 +1,9 @@
+<%-- 
+    Document   : movie_detail
+    Created on : 4 Jul 2025, 14:39:04
+    Author     : Dell-PC
+--%>
+
 <!DOCTYPE html>
 <html lang="en">
 

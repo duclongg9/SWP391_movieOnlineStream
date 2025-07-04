@@ -90,14 +90,14 @@
       <li>
         <div class="movie-card">
 
-          <a href="./movie-details.html">
+          <a href="./template/movie-detail.html">
             <figure class="card-banner">
               <img src="./assets/images/series-3.png" alt="Vikings: Valhalla movie poster">
             </figure>
           </a>
 
           <div class="title-wrapper">
-            <a href="./movie-details.html">
+            <a href="./template/movie-detail.html">
               <h3 class="card-title">Vikings: Valhalla</h3>
             </a>
 
@@ -126,14 +126,14 @@
       <li>
         <div class="movie-card">
 
-          <a href="./movie-details.html">
+          <a href="./template/movie-detail.html">
             <figure class="card-banner">
               <img src="./assets/images/series-4.png" alt="Money Heist movie poster">
             </figure>
           </a>
 
           <div class="title-wrapper">
-            <a href="./movie-details.html">
+            <a href="./template/movie-detail.html">
               <h3 class="card-title">Money Heist</h3>
             </a>
 
