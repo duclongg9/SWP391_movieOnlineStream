@@ -105,3 +105,50 @@ CREATE TABLE IF NOT EXISTS watch_history (
 INSERT INTO movies(title, genre, actor, price_point, description, duration_min) VALUES
   ('The Northman','Action','Alexander Skarsgård',50,'','0'),
   ('Doctor Strange in the Multiverse of Madness','Fantasy','Benedict Cumberbatch',60,'','0');
+-- Sample data for users
+INSERT INTO users (email, password, point_balance)
+VALUES
+  ('user1@example.com','8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92',100),
+  ('user2@example.com','5e884898da28047151d0e56f8dc6292773603d0d6aabbdd62a11ef721d1542d8',200);
+
+-- Sample data for wallet
+INSERT INTO wallet (user_id, balance_point, last_recharged)
+VALUES
+  (1,100,NOW()),
+  (2,200,NOW());
+
+-- Sample data for transaction
+INSERT INTO transaction (user_id, amount_vnd, point_earned, gateway_status)
+VALUES
+  (1,100000,100,'SUCCESS'),
+  (2,200000,200,'SUCCESS');
+
+-- Sample data for package
+INSERT INTO package (name, description, duration_days, price_point)
+VALUES
+  ('Basic Package','Access to basic movies',30,80),
+  ('Premium Package','Access to all movies',30,150);
+
+-- Sample data for package_film
+INSERT INTO package_film (package_id, film_id)
+VALUES
+  (1,1),
+  (2,1),
+  (2,2);
+
+-- Sample data for user_purchase
+INSERT INTO user_purchase (user_id, film_id, package_id, expired_at)
+VALUES
+  (1,NULL,1, DATE_ADD(NOW(), INTERVAL 30 DAY)),
+  (2,2,NULL, DATE_ADD(NOW(), INTERVAL 1 DAY));
+
+-- Sample data for promotion
+INSERT INTO promotion (code, discount_pct, apply_to, target_id, valid_until)
+VALUES
+  ('PROMO10',10.0,'goi',1, DATE_ADD(NOW(), INTERVAL 60 DAY));
+
+-- Sample data for watch_history
+INSERT INTO watch_history (user_id, film_id)
+VALUES
+  (1,1),
+  (2,2);
