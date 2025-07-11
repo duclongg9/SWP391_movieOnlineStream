@@ -38,4 +38,14 @@ public class DBConnection {
             e.printStackTrace();
         }
     }
+    public static void main(String[] args) {
+        Connection con = DBConnection.getConnection();
+        if (con != null) {
+            System.out.println("Database connection is active!");
+            DBConnection.closeConnection(con); // Đóng kết nối sau khi kiểm tra
+        } else {
+            System.out.println("Database connection failed!");
+        }
+    }
 }
+
