@@ -3,8 +3,8 @@ package controller.auth;
 import com.google.gson.Gson;
 import dao.user.UserDAO;
 import model.User;
-import util.PasswordUtil;
 import util.JwtUtil;
+import util.PasswordUtil;
 
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -24,36 +24,81 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Pattern;
 
-@WebServlet(urlPatterns = {"/api/auth/login", "/api/auth/register", "/api/auth/sso/google", "/api/auth/sso/google/callback", "/api/auth/sso/facebook", "/api/auth/sso/facebook/callback"})
+@WebServlet(urlPatterns = {
+    "/api/auth/login",
+    "/api/auth/register",
+    "/api/auth/sso/google",
+    "/api/auth/sso/google/callback",
+    "/api/auth/sso/facebook",
+    "/api/auth/sso/facebook/callback",
+    "/api/auth/logout"
+})
 public class AuthController extends HttpServlet {
 
     private static final Gson GSON = new Gson();
     private static final Pattern EMAIL_PATTERN = Pattern.compile("^[A-Za-z0-9+_.-]+@(.+)$");
 
-    // Placeholder constants - replace with actual values from Google/Facebook developer console
+    // Google OAuth2 configuration (replace with actual values)
     private static final String GOOGLE_CLIENT_ID = "your_google_client_id";
     private static final String GOOGLE_CLIENT_SECRET = "your_google_client_secret";
-    private static final String GOOGLE_REDIRECT_URI = "http://localhost:8080/api/auth/sso/google/callback"; // Adjust to your domain
+    private static final String GOOGLE_REDIRECT_URI = "http://localhost:8080/api/auth/sso/google/callback";
 
+    // Facebook OAuth2 configuration (replace with actual values)
     private static final String FACEBOOK_CLIENT_ID = "your_facebook_app_id";
     private static final String FACEBOOK_CLIENT_SECRET = "your_facebook_app_secret";
-    private static final String FACEBOOK_REDIRECT_URI = "http://localhost:8080/api/auth/sso/facebook/callback"; // Adjust to your domain
+    private static final String FACEBOOK_REDIRECT_URI = "http://localhost:8080/api/auth/sso/facebook/callback";
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         String path = req.getServletPath();
-        if ("/api/auth/login".equals(path)) {
-            req.getRequestDispatcher("/jsp/user/login.jsp").forward(req, resp);
-        } else if ("/api/auth/register".equals(path)) {
-            req.getRequestDispatcher("/jsp/user/register.jsp").forward(req, resp);
-        } else if ("/api/auth/sso/google".equals(path)) {
-            handleGoogleRedirect(resp);
-        } else if ("/api/auth/sso/google/callback".equals(path)) {
-            handleGoogleCallback(req, resp);
-        } else if ("/api/auth/sso/facebook".equals(path)) {
-            handleFacebookRedirect(resp);
-        } else if ("/api/auth/sso/facebook/callback".equals(path)) {
-            handleFacebookCallback(req, resp);
+        switch (path) {
+            case "/api/auth/login":
+                req.getRequestDispatcher("/jsp/user/login.jsp").forward(req, resp);
+                break;
+            case "/api/auth/register":
+                req.getRequestDispatcher("/jsp/user/register.jsp").forward(req, resp);
+                break;
+            case "/api/auth/sso/google":
+                handleGoogleRedirect(resp);
+                break;
+            case "/api/auth/sso/google/callback":
+                handleGoogleCallback(req, resp);
+                break;
+            case "/api/auth/sso/facebook":
+                handleFacebookRedirect(resp);
+                break;
+            case "/api/auth/sso/facebook/callback":
+                handleFacebookCallback(req, resp);
+                break;
+            default:
+                resp.sendError(HttpServletResponse.SC_NOT_FOUND);
+                break;
+        }
+    }
+
+    @Override
+    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        req.setCharacterEncoding("UTF-8");
+        resp.setContentType("application/json;charset=UTF-8");
+        String path = req.getServletPath();
+        if ("/api/auth/logout".equals(path)) {
+            sendJsonResponse(resp, Map.of("status", "logged out"));
+            return;
+        }
+
+        String email = req.getParameter("email") != null ? req.getParameter("email").trim() : null;
+        String password = req.getParameter("password") != null ? req.getParameter("password").trim() : null;
+
+        if (email == null || password == null || email.isEmpty() || password.isEmpty() || !EMAIL_PATTERN.matcher(email).matches()) {
+            resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            sendJsonResponse(resp, Map.of("error", "Invalid or missing fields"));
+            return;
+        }
+
+        if ("/api/auth/register".equals(path)) {
+            handleRegister(req, resp, email, password);
+        } else if ("/api/auth/login".equals(path)) {
+            handleLogin(req, resp, email, password);
         } else {
             resp.sendError(HttpServletResponse.SC_NOT_FOUND);
         }
@@ -69,7 +114,7 @@ public class AuthController extends HttpServlet {
         String code = req.getParameter("code");
         if (code == null || code.isEmpty()) {
             resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-            resp.getWriter().write("{\"error\":\"Missing code\"}");
+            sendJsonResponse(resp, Map.of("error", "Missing code"));
             return;
         }
 
@@ -88,7 +133,7 @@ public class AuthController extends HttpServlet {
 
         if (accessToken == null) {
             resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-            resp.getWriter().write("{\"error\":\"Failed to get access token\"}");
+            sendJsonResponse(resp, Map.of("error", "Failed to get access token"));
             return;
         }
 
@@ -100,7 +145,7 @@ public class AuthController extends HttpServlet {
 
         if (email == null) {
             resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-            resp.getWriter().write("{\"error\":\"Failed to get user email\"}");
+            sendJsonResponse(resp, Map.of("error", "Failed to get user email"));
             return;
         }
 
@@ -110,7 +155,7 @@ public class AuthController extends HttpServlet {
             boolean created = UserDAO.createSsoUser(email, "google");
             if (!created) {
                 resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-                resp.getWriter().write("{\"error\":\"Failed to create user\"}");
+                sendJsonResponse(resp, Map.of("error", "Failed to create user"));
                 return;
             }
             user = UserDAO.findByEmail(email);
@@ -131,7 +176,7 @@ public class AuthController extends HttpServlet {
         String code = req.getParameter("code");
         if (code == null || code.isEmpty()) {
             resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-            resp.getWriter().write("{\"error\":\"Missing code\"}");
+            sendJsonResponse(resp, Map.of("error", "Missing code"));
             return;
         }
 
@@ -142,12 +187,11 @@ public class AuthController extends HttpServlet {
                 "&code=" + code;
 
         String tokenResponse = sendGetRequest(tokenUrl, null);
-        // Parse access_token from response (format: access_token=...&expires=...)
         String accessToken = tokenResponse.split("&")[0].split("=")[1];
 
         if (accessToken == null) {
             resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-            resp.getWriter().write("{\"error\":\"Failed to get access token\"}");
+            sendJsonResponse(resp, Map.of("error", "Failed to get access token"));
             return;
         }
 
@@ -159,7 +203,7 @@ public class AuthController extends HttpServlet {
 
         if (email == null) {
             resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-            resp.getWriter().write("{\"error\":\"Failed to get user email\"}");
+            sendJsonResponse(resp, Map.of("error", "Failed to get user email"));
             return;
         }
 
@@ -169,7 +213,7 @@ public class AuthController extends HttpServlet {
             boolean created = UserDAO.createSsoUser(email, "facebook");
             if (!created) {
                 resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-                resp.getWriter().write("{\"error\":\"Failed to create user\"}");
+                sendJsonResponse(resp, Map.of("error", "Failed to create user"));
                 return;
             }
             user = UserDAO.findByEmail(email);
@@ -219,6 +263,19 @@ public class AuthController extends HttpServlet {
                 content.append(inputLine);
             }
             return content.toString();
+        } catch (IOException e) {
+            // Handle error response
+            if (conn.getResponseCode() >= 400) {
+                try (BufferedReader in = new BufferedReader(new InputStreamReader(conn.getErrorStream()))) {
+                    String inputLine;
+                    StringBuilder content = new StringBuilder();
+                    while ((inputLine = in.readLine()) != null) {
+                        content.append(inputLine);
+                    }
+                    return content.toString();
+                }
+            }
+            throw e;
         }
     }
 
@@ -227,31 +284,6 @@ public class AuthController extends HttpServlet {
         resp.getWriter().write("<script>localStorage.setItem('token', '" + token + "'); window.location.href = '" + contextPath + "/index.jsp';</script>");
     }
 
-    @Override
-    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        // Existing doPost for login/register remains the same
-        req.setCharacterEncoding("UTF-8");
-        resp.setContentType("application/json;charset=UTF-8");
-        String path = req.getServletPath();
-        String email = req.getParameter("email") != null ? req.getParameter("email").trim() : null;
-        String password = req.getParameter("password") != null ? req.getParameter("password").trim() : null;
-
-        if (email == null || password == null || email.isEmpty() || password.isEmpty() || !EMAIL_PATTERN.matcher(email).matches()) {
-            resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-            sendJsonResponse(resp, Map.of("error", "Invalid or missing fields"));
-            return;
-        }
-
-        if ("/api/auth/register".equals(path)) {
-            handleRegister(req, resp, email, password);
-        } else if ("/api/auth/login".equals(path)) {
-            handleLogin(req, resp, email, password);
-        } else {
-            resp.sendError(HttpServletResponse.SC_NOT_FOUND);
-        }
-    }
-
-    // Existing handleRegister, handleLogin, sendJsonResponse remain the same
     private void handleRegister(HttpServletRequest req, HttpServletResponse resp, String email, String password) throws IOException {
         boolean success = UserDAO.createUser(email, PasswordUtil.hash(password));
         if (success) {
