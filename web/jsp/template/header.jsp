@@ -44,7 +44,6 @@
         <a href="#" class="btn" id="logoutLink" style="display:none;">Logout</a>
         <span id="userEmail" style="color:#fff; margin-left:10px; display:none;"></span>
 
-
       </div>
 
       <button class="menu-open-btn" data-menu-open-btn>
@@ -128,7 +127,7 @@
     </div>
   </header>
 <script>
-    (function(){
+    (function() {
       const token = localStorage.getItem('token');
       if (token) {
         try {
@@ -139,21 +138,31 @@
           const profileLink = document.getElementById('profileLink');
           const historyLink = document.getElementById('historyLink');
           const logoutLink = document.getElementById('logoutLink');
-          emailSpan.textContent = payload.sub;
-          emailSpan.style.display = 'inline-block';
+          if (payload.sub) {
+            emailSpan.textContent = payload.sub;
+            emailSpan.style.display = 'inline-block';
+          }
           if (loginLink) loginLink.style.display = 'none';
           if (regLink) regLink.style.display = 'none';
           if (profileLink) profileLink.style.display = 'inline-block';
           if (historyLink) historyLink.style.display = 'inline-block';
           if (logoutLink) logoutLink.style.display = 'inline-block';
-        } catch(err) {}
+        } catch (err) {
+          console.error('Invalid token:', err);
+        }
       }
       const logoutLink = document.getElementById('logoutLink');
-      if (logoutLink) logoutLink.addEventListener('click', async function(e){
-        e.preventDefault();
-        await fetch('<%=request.getContextPath()%>/api/auth/logout', {method:'POST'});
-        localStorage.removeItem('token');
-        window.location.href = '<%=request.getContextPath()%>/index.jsp';
-      });
+      if (logoutLink) {
+        logoutLink.addEventListener('click', async function(e) {
+          e.preventDefault();
+          try {
+            await fetch('<%=request.getContextPath()%>/api/auth/logout', { method: 'POST' });
+          } catch (err) {
+            console.error('Logout failed:', err);
+          }
+          localStorage.removeItem('token');
+          window.location.href = '<%=request.getContextPath()%>/index.jsp';
+        });
+      }
     })();
   </script>

@@ -1,5 +1,6 @@
-package controller.user;
+ package controller.user;
 
+import com.google.gson.Gson;
 import dao.user.UserDAO;
 import model.User;
 import util.JwtUtil;
@@ -12,36 +13,36 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 import java.io.IOException;
-import java.io.PrintWriter;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.regex.Pattern;
 
 @WebServlet(urlPatterns = {"/api/user/profile", "/api/user/change-password", "/user/profile"})
 public class UserController extends HttpServlet {
+
+    private static final Gson GSON = new Gson();
+    private static final Pattern EMAIL_PATTERN = Pattern.compile("^[A-Za-z0-9+_.-]+@(.+)$");
+
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        if ("/user/profile".equals(req.getServletPath())) {
+        String path = req.getServletPath();
+        if ("/user/profile".equals(path)) {
             req.getRequestDispatcher("/jsp/user/profile.jsp").forward(req, resp);
             return;
         }
-        if (!"/api/user/profile".equals(req.getServletPath())) {
+        if (!"/api/user/profile".equals(path)) {
             resp.sendError(HttpServletResponse.SC_NOT_FOUND);
             return;
         }
-        String token = extractToken(req);
-        String email = JwtUtil.verifyToken(token);
-        resp.setContentType("application/json;charset=UTF-8");
-        PrintWriter out = resp.getWriter();
-        if (email == null) {
-            resp.setStatus(401);
-            out.write("{\"error\":\"unauthorized\"}");
-            return;
-        }
-        User u = UserDAO.findByEmail(email);
-        if (u == null) {
-            resp.setStatus(404);
-            out.write("{\"error\":\"not found\"}");
-            return;
-        }
-        out.write("{\"email\":\"" + u.getEmail() + "\"}");
+        processAuthenticatedRequest(req, resp, email -> {
+            User user = UserDAO.findByEmail(email);
+            if (user == null) {
+                resp.setStatus(HttpServletResponse.SC_NOT_FOUND);
+                sendJsonResponse(resp, Map.of("error", "User not found"));
+                return;
+            }
+            sendJsonResponse(resp, Map.of("email", user.getEmail()));
+        });
     }
 
     @Override
@@ -50,28 +51,21 @@ public class UserController extends HttpServlet {
             resp.sendError(HttpServletResponse.SC_NOT_FOUND);
             return;
         }
-        String token = extractToken(req);
-        String email = JwtUtil.verifyToken(token);
-        resp.setContentType("application/json;charset=UTF-8");
-        PrintWriter out = resp.getWriter();
-        if (email == null) {
-            resp.setStatus(401);
-            out.write("{\"error\":\"unauthorized\"}");
-            return;
-        }
-        String newEmail = req.getParameter("email");
-        if (newEmail == null || newEmail.trim().isEmpty()) {
-            resp.setStatus(400);
-            out.write("{\"error\":\"missing email\"}");
-            return;
-        }
-        boolean ok = UserDAO.updateEmail(email, newEmail.trim());
-        if (ok) {
-            out.write("{\"email\":\"" + newEmail.trim() + "\"}");
-        } else {
-            resp.setStatus(500);
-            out.write("{\"error\":\"update failed\"}");
-        }
+        processAuthenticatedRequest(req, resp, email -> {
+            String newEmail = req.getParameter("email") != null ? req.getParameter("email").trim() : null;
+            if (newEmail == null || newEmail.isEmpty() || !EMAIL_PATTERN.matcher(newEmail).matches()) {
+                resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+                sendJsonResponse(resp, Map.of("error", "Invalid or missing email"));
+                return;
+            }
+            boolean success = UserDAO.updateEmail(email, newEmail);
+            if (success) {
+                sendJsonResponse(resp, Map.of("email", newEmail));
+            } else {
+                resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+                sendJsonResponse(resp, Map.of("error", "Update failed"));
+            }
+        });
     }
 
     @Override
@@ -80,42 +74,58 @@ public class UserController extends HttpServlet {
             resp.sendError(HttpServletResponse.SC_NOT_FOUND);
             return;
         }
+        processAuthenticatedRequest(req, resp, email -> {
+            String oldPassword = req.getParameter("oldPassword");
+            String newPassword = req.getParameter("newPassword");
+            if (oldPassword == null || newPassword == null || oldPassword.isEmpty() || newPassword.isEmpty()) {
+                resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+                sendJsonResponse(resp, Map.of("error", "Missing fields"));
+                return;
+            }
+            User user = UserDAO.validateUser(email, oldPassword);
+            if (user == null) {
+                resp.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                sendJsonResponse(resp, Map.of("error", "Invalid old password"));
+                return;
+            }
+            boolean success = UserDAO.changePassword(email, PasswordUtil.hash(newPassword));
+            if (success) {
+                sendJsonResponse(resp, Map.of("status", "ok"));
+            } else {
+                resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+                sendJsonResponse(resp, Map.of("error", "Update failed"));
+            }
+        });
+    }
+
+    private void processAuthenticatedRequest(HttpServletRequest req, HttpServletResponse resp, AuthenticatedAction action) throws IOException {
+        resp.setContentType("application/json;charset=UTF-8");
         String token = extractToken(req);
         String email = JwtUtil.verifyToken(token);
-        resp.setContentType("application/json;charset=UTF-8");
-        PrintWriter out = resp.getWriter();
         if (email == null) {
-            resp.setStatus(401);
-            out.write("{\"error\":\"unauthorized\"}");
+            resp.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            sendJsonResponse(resp, Map.of("error", "Unauthorized"));
             return;
         }
-        String oldPass = req.getParameter("oldPassword");
-        String newPass = req.getParameter("newPassword");
-        if (oldPass == null || newPass == null || oldPass.isEmpty() || newPass.isEmpty()) {
-            resp.setStatus(400);
-            out.write("{\"error\":\"missing fields\"}");
-            return;
-        }
-        User u = UserDAO.validateUser(email, oldPass);
-        if (u == null) {
-            resp.setStatus(401);
-            out.write("{\"error\":\"invalid password\"}");
-            return;
-        }
-        boolean ok = UserDAO.changePassword(email, PasswordUtil.hash(newPass));
-        if (ok) {
-            out.write("{\"status\":\"ok\"}");
-        } else {
-            resp.setStatus(500);
-            out.write("{\"error\":\"update failed\"}");
-        }
+        action.execute(email);
+    }
+
+    private interface AuthenticatedAction {
+        void execute(String email) throws IOException;
     }
 
     private String extractToken(HttpServletRequest req) {
-        String auth = req.getHeader("Authorization");
-        if (auth != null && auth.startsWith("Bearer ")) {
-            return auth.substring(7);
+        String authHeader = req.getHeader("Authorization");
+        if (authHeader != null && authHeader.startsWith("Bearer ")) {
+            return authHeader.substring(7);
         }
-        return req.getParameter("token");
+        // Removed token from query parameter for security reasons
+        return null;
+    }
+
+    private void sendJsonResponse(HttpServletResponse resp, Map<String, Object> data) throws IOException {
+        try (var out = resp.getWriter()) {
+            out.print(GSON.toJson(data));
+        }
     }
 }

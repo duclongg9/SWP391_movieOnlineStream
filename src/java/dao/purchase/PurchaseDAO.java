@@ -41,7 +41,47 @@ public class PurchaseDAO {
             DBConnection.closeConnection(conn);
         }
     }
+public static boolean addMoviePurchase(int userId, int filmId) {
+        String sql = "INSERT INTO user_purchase(user_id, film_id) VALUES(?, ?)";
+        Connection conn = DBConnection.getConnection();
+        if (conn == null) return false;
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, userId);
+            ps.setInt(2, filmId);
+            return ps.executeUpdate() == 1;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        } finally {
+            DBConnection.closeConnection(conn);
+        }
+    }
 
+    public static boolean hasAccessToFilm(int userId, int filmId) {
+        String sql = "SELECT COUNT(*) FROM user_purchase up " +
+                "LEFT JOIN package_film pf ON up.package_id = pf.package_id " +
+                "WHERE up.user_id=? AND ((up.film_id=? ) OR pf.film_id=?) " +
+                "AND (up.expired_at IS NULL OR up.expired_at > NOW())";
+        Connection conn = DBConnection.getConnection();
+        if (conn == null) return false;
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, userId);
+            ps.setInt(2, filmId);
+            ps.setInt(3, filmId);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                return rs.getInt(1) > 0;
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            DBConnection.closeConnection(conn);
+        }
+        return false;
+    }
+
+
+    
     private static Purchase map(ResultSet rs) throws SQLException {
         Purchase p = new Purchase();
         p.setId(rs.getInt("id"));

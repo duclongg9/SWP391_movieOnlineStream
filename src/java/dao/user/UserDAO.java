@@ -26,6 +26,27 @@ public class UserDAO {
         }
     }
 
+    public static boolean createUserSso(String email, String provider) {
+        String sql = "INSERT INTO users(email, sso_provider) VALUES(?, ?)";
+        Connection conn = DBConnection.getConnection();
+        if (conn == null) {
+            System.err.println("DB connection is null when creating sso user");
+            return false;
+        }
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, email);
+            ps.setString(2, provider);
+            return ps.executeUpdate() == 1;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        } finally {
+            DBConnection.closeConnection(conn);
+        }
+    }
+
+
+    
     public static User findByEmail(String email) {
         String sql = "SELECT * FROM users WHERE email = ?";
         Connection conn = DBConnection.getConnection();

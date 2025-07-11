@@ -1,5 +1,6 @@
 package controller.auth;
 
+import com.google.gson.Gson;
 import dao.user.UserDAO;
 import model.User;
 import util.PasswordUtil;
@@ -12,11 +13,16 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 import java.io.IOException;
-import java.io.PrintWriter;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.regex.Pattern;
 
 @WebServlet(urlPatterns = {"/api/auth/login", "/api/auth/register"})
 public class AuthController extends HttpServlet {
-    
+
+    private static final Gson GSON = new Gson();
+    private static final Pattern EMAIL_PATTERN = Pattern.compile("^[A-Za-z0-9+_.-]+@(.+)$");
+
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         String path = req.getServletPath();
@@ -24,56 +30,60 @@ public class AuthController extends HttpServlet {
             req.getRequestDispatcher("/jsp/user/login.jsp").forward(req, resp);
         } else if ("/api/auth/register".equals(path)) {
             req.getRequestDispatcher("/jsp/user/register.jsp").forward(req, resp);
+        } else {
+            resp.sendError(HttpServletResponse.SC_NOT_FOUND);
         }
     }
 
-
+    @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         req.setCharacterEncoding("UTF-8");
         resp.setContentType("application/json;charset=UTF-8");
         String path = req.getServletPath();
-        PrintWriter out = resp.getWriter();
+        String email = req.getParameter("email") != null ? req.getParameter("email").trim() : null;
+        String password = req.getParameter("password") != null ? req.getParameter("password").trim() : null;
+
+        if (email == null || password == null || email.isEmpty() || password.isEmpty() || !EMAIL_PATTERN.matcher(email)) {
+            resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            sendJsonResponse(resp, Map.of("error", "Invalid or missing fields"));
+            return;
+        }
+
         if ("/api/auth/register".equals(path)) {
-            String email = req.getParameter("email");
-            String password = req.getParameter("password");
-            if (email != null) email = email.trim();
-            if (password != null) password = password.trim();
-            if (email == null || password == null || email.isEmpty() || password.isEmpty()) {
-                resp.setStatus(400);
-                out.write("{\"error\":\"missing fields\"}");
-                return;
-            }
-
-
-            boolean ok = UserDAO.createUser(email, PasswordUtil.hash(password));
-            if (ok) {
-                String token = JwtUtil.generateToken(email);
-                resp.setStatus(201);
-                out.write("{\"token\":\"" + token + "\"}");
-            } else {
-                resp.setStatus(400);
-                out.write("{\"error\":\"register failed\"}");
-            }
+            handleRegister(req, resp, email, password);
         } else if ("/api/auth/login".equals(path)) {
-            String email = req.getParameter("email");
-            String password = req.getParameter("password");
-            if (email != null) email = email.trim();
-            if (password != null) password = password.trim();
-            User u = UserDAO.validateUser(email, password);
-            if (email == null || password == null || email.isEmpty() || password.isEmpty()) {
-                resp.setStatus(400);
-                out.write("{\"error\":\"missing fields\"}");
-                return;
-            }
+            handleLogin(req, resp, email, password);
+        } else {
+            resp.sendError(HttpServletResponse.SC_NOT_FOUND);
+        }
+    }
 
+    private void handleRegister(HttpServletRequest req, HttpServletResponse resp, String email, String password) throws IOException {
+        boolean success = UserDAO.createUser(email, PasswordUtil.hash(password));
+        if (success) {
+            String token = JwtUtil.generateToken(email);
+            resp.setStatus(HttpServletResponse.SC_CREATED);
+            sendJsonResponse(resp, Map.of("token", token));
+        } else {
+            resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            sendJsonResponse(resp, Map.of("error", "Registration failed. Email may already exist."));
+        }
+    }
 
-            if (u != null) {
-                String token = JwtUtil.generateToken(email);
-                out.write("{\"token\":\"" + token + "\"}");
-            } else {
-                resp.setStatus(401);
-                out.write("{\"error\":\"invalid credentials\"}");
-            }
+    private void handleLogin(HttpServletRequest req, HttpServletResponse resp, String email, String password) throws IOException {
+        User user = UserDAO.validateUser(email, password);
+        if (user != null) {
+            String token = JwtUtil.generateToken(email);
+            sendJsonResponse(resp, Map.of("token", token));
+        } else {
+            resp.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            sendJsonResponse(resp, Map.of("error", "Invalid credentials"));
+        }
+    }
+
+    private void sendJsonResponse(HttpServletResponse resp, Map<String, Object> data) throws IOException {
+        try (var out = resp.getWriter()) {
+            out.print(GSON.toJson(data));
         }
     }
 }
