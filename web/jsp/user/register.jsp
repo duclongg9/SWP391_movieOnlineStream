@@ -55,7 +55,13 @@ document.getElementById('regForm').addEventListener('submit', async function(e){
       e.preventDefault();
       const data = new URLSearchParams(new FormData(e.target));
       const res = await fetch(base + '/api/auth/register', {method: 'POST', body: data});
-      document.getElementById('result').textContent = await res.text();
+      if (res.ok) {
+        // registration succeeded, redirect to login page
+        window.location.href = base + '/api/auth/login';
+      } else {
+        // show error returned from server
+        document.getElementById('result').textContent = await res.text();
+      }
     });
   </script>
 </body>

@@ -37,8 +37,9 @@
           </select>
         </div>
 
-        <a href="<%=request.getContextPath()%>/api/auth/login" class="btn btn-primary">Sign in</a>
-        <a href="<%=request.getContextPath()%>/api/auth/register" class="btn">Register</a>
+        <a href="<%=request.getContextPath()%>/api/auth/login" class="btn btn-primary" id="loginLink">Sign in</a>
+        <a href="<%=request.getContextPath()%>/api/auth/register" class="btn" id="registerLink">Register</a>
+        <span id="userEmail" style="color:#fff; margin-left:10px; display:none;"></span>
 
 
       </div>
@@ -123,3 +124,20 @@
 
     </div>
   </header>
+<script>
+    (function(){
+      const token = localStorage.getItem('token');
+      if (token) {
+        try {
+          const payload = JSON.parse(atob(token.split('.')[1]));
+          const emailSpan = document.getElementById('userEmail');
+          const loginLink = document.getElementById('loginLink');
+          const regLink = document.getElementById('registerLink');
+          emailSpan.textContent = payload.sub;
+          emailSpan.style.display = 'inline-block';
+          if (loginLink) loginLink.style.display = 'none';
+          if (regLink) regLink.style.display = 'none';
+        } catch(err) {}
+      }
+    })();
+  </script>

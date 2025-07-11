@@ -55,7 +55,19 @@ document.getElementById('loginForm').addEventListener('submit', async function(e
       e.preventDefault();
       const data = new URLSearchParams(new FormData(e.target));
       const res = await fetch(base + '/api/auth/login', {method: 'POST', body: data});
-      document.getElementById('result').textContent = await res.text();
+      const text = await res.text();
+      if (res.ok) {
+        try {
+          const obj = JSON.parse(text);
+          // store token for later use and redirect to homepage
+          localStorage.setItem('token', obj.token);
+        } catch(err) {
+          // ignore parse error
+        }
+        window.location.href = base + '/index.jsp';
+      } else {
+        document.getElementById('result').textContent = text;
+      }
     });
   </script>
 </body>
