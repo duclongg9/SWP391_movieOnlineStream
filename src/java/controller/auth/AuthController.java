@@ -31,7 +31,7 @@ import java.util.regex.Pattern;
     "/api/auth/sso/google/callback",
     "/api/auth/sso/facebook",
     "/api/auth/sso/facebook/callback",
-    "/api/auth/logout"
+    
 })
 public class AuthController extends HttpServlet {
 
@@ -81,10 +81,7 @@ public class AuthController extends HttpServlet {
         req.setCharacterEncoding("UTF-8");
         resp.setContentType("application/json;charset=UTF-8");
         String path = req.getServletPath();
-        if ("/api/auth/logout".equals(path)) {
-            sendJsonResponse(resp, Map.of("status", "logged out"));
-            return;
-        }
+        
 
         String email = req.getParameter("email") != null ? req.getParameter("email").trim() : null;
         String password = req.getParameter("password") != null ? req.getParameter("password").trim() : null;
