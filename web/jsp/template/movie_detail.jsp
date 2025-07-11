@@ -42,7 +42,7 @@
 
 <body id="#top">
 
-  <jsp:include page="jsp/template/header.jsp" />
+  <jsp:include page="/jsp/template/header.jsp" />
 
 
 
@@ -312,7 +312,7 @@
 
     </article>
   </main>
-<jsp:include page="jsp/template/footer.jsp" />
+<jsp:include page="/jsp/template/footer.jsp" />
 
 
 

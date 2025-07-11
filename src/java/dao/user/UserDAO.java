@@ -9,21 +9,31 @@ import java.sql.*;
 public class UserDAO {
     public static boolean createUser(String email, String passwordHash) {
         String sql = "INSERT INTO users(email, password) VALUES(?, ?)";
-        try (Connection conn = DBConnection.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
+        Connection conn = DBConnection.getConnection();
+        if (conn == null) {
+            System.err.println("DB connection is null when creating user");
+            return false;
+        }
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, email);
             ps.setString(2, passwordHash);
             return ps.executeUpdate() == 1;
         } catch (SQLException e) {
             e.printStackTrace();
             return false;
+        }finally {
+            DBConnection.closeConnection(conn);
         }
     }
 
     public static User findByEmail(String email) {
         String sql = "SELECT * FROM users WHERE email = ?";
-        try (Connection conn = DBConnection.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
+        Connection conn = DBConnection.getConnection();
+        if (conn == null) {
+            System.err.println("DB connection is null when finding user");
+            return null;
+        }
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, email);
             ResultSet rs = ps.executeQuery();
             if (rs.next()) {
@@ -32,6 +42,8 @@ public class UserDAO {
             }
         } catch (SQLException e) {
             e.printStackTrace();
+        }    finally {
+            DBConnection.closeConnection(conn);
         }
         return null;
     }
