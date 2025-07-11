@@ -31,6 +31,8 @@
             <input type="password" name="password" placeholder="Password" required />
             <button type="submit" class="btn btn-primary">Sign in</button>
           </form>
+          <p><a href="<%=request.getContextPath()%>/api/auth/sso/google">Login with Google</a></p>
+          <p><a href="<%=request.getContextPath()%>/api/auth/sso/facebook">Login with Facebook</a></p>
           <p class="form-switch">Don't have an account? <a href="<%=request.getContextPath()%>/api/auth/register">Register</a></p>
           <div id="errorMessage" class="error-message" style="color: red; display: none;"></div>
         </div>
@@ -46,6 +48,7 @@
   <script type="module" src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.esm.js"></script>
   <script nomodule src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.js"></script>
   <script>
+    // Existing script remains the same
     const base = '<%=request.getContextPath()%>';
     const errorDiv = document.getElementById('errorMessage');
 

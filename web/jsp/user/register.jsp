@@ -32,6 +32,8 @@
             <input type="password" name="confirmPassword" placeholder="Confirm Password" required />
             <button type="submit" class="btn btn-primary">Register</button>
           </form>
+          <p><a href="<%=request.getContextPath()%>/api/auth/sso/google">Register with Google</a></p>
+          <p><a href="<%=request.getContextPath()%>/api/auth/sso/facebook">Register with Facebook</a></p>
           <p class="form-switch">Already have an account? <a href="<%=request.getContextPath()%>/api/auth/login">Login</a></p>
           <div id="errorMessage" class="error-message" style="color: red; display: none;"></div>
         </div>
@@ -47,6 +49,7 @@
   <script type="module" src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.esm.js"></script>
   <script nomodule src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.js"></script>
   <script>
+    // Existing script remains the same
     const base = '<%=request.getContextPath()%>';
     const errorDiv = document.getElementById('errorMessage');
 

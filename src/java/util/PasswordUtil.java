@@ -8,9 +8,9 @@ public class PasswordUtil {
     public static String hash(String password) {
         try {
             MessageDigest md = MessageDigest.getInstance("SHA-256");
-            byte[] hashed = md.digest(password.getBytes(StandardCharsets.UTF_8));
+            byte[] hashedBytes = md.digest(password.getBytes());
             StringBuilder sb = new StringBuilder();
-            for (byte b : hashed) {
+            for (byte b : hashedBytes) {
                 sb.append(String.format("%02x", b));
             }
             return sb.toString();

@@ -26,7 +26,7 @@ public class UserDAO {
         }
     }
 
-    public static boolean createUserSso(String email, String provider) {
+    public static boolean createSsoUser(String email, String provider) {
         String sql = "INSERT INTO users(email, sso_provider) VALUES(?, ?)";
         Connection conn = DBConnection.getConnection();
         if (conn == null) {
@@ -44,7 +44,6 @@ public class UserDAO {
             DBConnection.closeConnection(conn);
         }
     }
-
 
     
     public static User findByEmail(String email) {

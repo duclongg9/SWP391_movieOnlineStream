@@ -26,7 +26,7 @@ public class SsoController extends HttpServlet {
         String provider = "google";
         if (req.getServletPath().contains("facebook")) provider = "facebook";
         if (UserDAO.findByEmail(email) == null) {
-            UserDAO.createUserSso(email, provider);
+            UserDAO.createSsoUser(email, provider);
         }
         String token = JwtUtil.generateToken(email);
         PrintWriter out = resp.getWriter();
