@@ -1596,3 +1596,36 @@ body.active { overflow: hidden; }
   }
 
 }
+/*-----------------------------------*
+ * #AUTH FORMS
+ *-----------------------------------*/
+
+.auth-section {
+  padding: var(--section-padding) 0;
+}
+
+.auth-form {
+  max-width: 400px;
+  margin-inline: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.auth-form input {
+  background: var(--gunmetal-2);
+  color: var(--white);
+  padding: 10px 15px;
+  border-radius: 4px;
+}
+
+.form-switch {
+  margin-top: 10px;
+  color: var(--light-gray);
+  text-align: center;
+}
+
+.auth-form .btn {
+  width: 100%;
+  justify-content: center;
+}
