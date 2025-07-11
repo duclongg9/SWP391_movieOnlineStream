@@ -13,6 +13,16 @@ public class User {
 
     public User() {}
 
+    public User(int id, String email, String password, String ssoProvider, int pointBalance, boolean isLocked, Timestamp createdAt) {
+        this.id = id;
+        this.email = email;
+        this.password = password;
+        this.ssoProvider = ssoProvider;
+        this.pointBalance = pointBalance;
+        this.isLocked = isLocked;
+        this.createdAt = createdAt;
+    }
+
     // getters and setters
     public int getId() { return id; }
     public void setId(int id) { this.id = id; }

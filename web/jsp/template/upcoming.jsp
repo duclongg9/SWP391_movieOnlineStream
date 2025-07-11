@@ -44,10 +44,24 @@
       <li>
         <div class="movie-card">
 
-
+            <a href="movie?id=<%= mv.getId() %>">
+            <figure class="card-banner">
+              <img src="<%= mv.getPosterUrl() %>" alt="<%= mv.getTitle() %> poster">
+            </figure>
+          </a>
 
           <div class="title-wrapper">
-            <h3 class="card-title"><%= mv.getTitle() %></h3>
+            <a href="movie?id=<%= mv.getId() %>">
+              <h3 class="card-title"><%= mv.getTitle() %></h3>
+            </a>
+            <time datetime="<%= mv.getYear() %>"><%= mv.getYear() %></time>
+          </div>
+          <div class="card-meta">
+            <div class="badge badge-outline"><%= mv.getQuality() %></div>
+            <div class="rating">
+              <ion-icon name="star"></ion-icon>
+              <data><%= mv.getRating() %></data>
+            </div>
           </div>
 
          <p><%= mv.getGenre() %> - <%= mv.getActor() %></p>

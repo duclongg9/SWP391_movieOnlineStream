@@ -4,6 +4,15 @@
     Author     : Dell-PC
 --%>
 
+<%@page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%@page import="model.Movie"%>
+<%
+    Movie mv = (Movie) request.getAttribute("movie");
+    if (mv == null) {
+        mv = new Movie();
+    }
+%>
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -11,7 +20,7 @@
   <meta charset="UTF-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Free Guy 2021</title>
+  <title><%= mv.getTitle() %></title>
 
   <!-- 
     - favicon
@@ -51,7 +60,7 @@
 
           <figure class="movie-detail-banner">
 
-            <img src="./assets/images/movie-4.png" alt="Free guy movie poster">
+            <img src="<%= mv.getPosterUrl() %>" alt="<%= mv.getTitle() %> poster">
 
             <button class="play-btn">
               <ion-icon name="play-circle-outline"></ion-icon>
@@ -61,28 +70,23 @@
 
           <div class="movie-detail-content">
 
-            <p class="detail-subtitle">New Episodes</p>
+            <p class="detail-subtitle"><%= mv.getGenre() %></p>
 
             <h1 class="h1 detail-title">
-              Free <strong>Guy</strong>
+              <%= mv.getTitle() %>
             </h1>
 
             <div class="meta-wrapper">
 
               <div class="badge-wrapper">
-                <div class="badge badge-fill">PG 13</div>
+                <div class="badge badge-fill"><%= mv.getRating() %></div>
 
-                <div class="badge badge-outline">HD</div>
+
+                <div class="badge badge-outline"><%= mv.getQuality() %></div>
               </div>
 
               <div class="ganre-wrapper">
-                <a href="#">Comedy,</a>
-
-                <a href="#">Action,</a>
-
-                <a href="#">Adventure,</a>
-
-                <a href="#">Science Fiction</a>
+                <a href="#"><%= mv.getGenre() %></a>
               </div>
 
               <div class="date-time">
@@ -90,7 +94,7 @@
                 <div>
                   <ion-icon name="calendar-outline"></ion-icon>
 
-                  <time datetime="2021">2021</time>
+                  <time datetime="<%= mv.getYear() %>"><%= mv.getYear() %></time>
                 </div>
 
                 <div>
@@ -104,9 +108,7 @@
             </div>
 
             <p class="storyline">
-              A bank teller called Guy realizes he is a background character in an open world video game called Free
-              City that will
-              soon go offline.
+             <%= mv.getDescription() %>
             </p>
 
             <div class="details-actions">
@@ -131,7 +133,7 @@
 
             </div>
 
-            <a href="./assets/images/movie-4.png" download class="download-btn">
+            <a href="<%= mv.getPosterUrl() %>" download class="download-btn">
               <span>Download</span>
 
               <ion-icon name="download-outline"></ion-icon>

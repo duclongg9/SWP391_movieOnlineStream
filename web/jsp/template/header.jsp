@@ -5,13 +5,16 @@
 --%>
 
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
+<%
+    String ctx = request.getContextPath();
+%>
 <!DOCTYPE html>
 <header class="header" data-header>
     <div class="container">
 
       <div class="overlay" data-overlay></div>
 
-      <a href="/movies" class="logo">
+      <a href="<%=request.getContextPath()%>/movies" class="logo">
         <img src="./assets/images/logo.svg" alt="Filmlane logo">
       </a>
 
@@ -34,8 +37,9 @@
           </select>
         </div>
 
-        <a href="/api/auth/login" class="btn btn-primary">Sign in</a>
-        <a href="/api/auth/register" class="btn">Register</a>
+        <a href="<%=request.getContextPath()%>/api/auth/login" class="btn btn-primary">Sign in</a>
+        <a href="<%=request.getContextPath()%>/api/auth/register" class="btn">Register</a>
+
 
       </div>
 
@@ -47,7 +51,7 @@
 
         <div class="navbar-top">
 
-          <a href="/movies" class="logo">
+          <a href="<%=request.getContextPath()%>/movies" class="logo">
             <img src="./assets/images/logo.svg" alt="Filmlane logo">
           </a>
 
@@ -60,7 +64,7 @@
         <ul class="navbar-list">
 
           <li>
-            <a href="/movies" class="navbar-link">Home</a>
+            <a href="<%=request.getContextPath()%>/movies" class="navbar-link">Home</a>
           </li>
 
           <li>

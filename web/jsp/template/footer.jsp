@@ -13,14 +13,14 @@
 
         <div class="footer-brand-wrapper">
 
-          <a href="/movies" class="logo">
+          <a href="<%=request.getContextPath()%>/movies" class="logo">
             <img src="./assets/images/logo.svg" alt="Filmlane logo">
           </a>
 
           <ul class="footer-list">
 
             <li>
-              <a href="/movies" class="footer-link">Home</a>
+              <a href="<%=request.getContextPath()%>/movies" class="footer-link">Home</a>
             </li>
 
             <li>

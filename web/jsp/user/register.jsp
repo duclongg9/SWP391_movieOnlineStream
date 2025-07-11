@@ -5,6 +5,7 @@
 --%>
 
 <%@ page contentType="text/html; charset=UTF-8" %>
+
 <!DOCTYPE html>
 <html>
 <head>
@@ -12,7 +13,7 @@
 </head>
 <body>
 <h2>Register</h2>
-<p><a href="/movies">Back to Home</a></p>
+<p><a href="<%=request.getContextPath()%>/movies">Back to Home</a></p>
 <form id="regForm">
     Email: <input type="email" name="email" /> <br/>
     Password: <input type="password" name="password" /> <br/>
@@ -21,11 +22,12 @@
 <pre id="result"></pre>
 
 <script>
+    const base = '<%=request.getContextPath()%>';
 document.getElementById('regForm').addEventListener('submit', async function(e){
     e.preventDefault();
     const form = e.target;
     const data = new URLSearchParams(new FormData(form));
-    const res = await fetch('/api/auth/register', {method: 'POST', body: data});
+    const res = await fetch(base + '/api/auth/register', {method: 'POST', body: data});
     const text = await res.text();
     document.getElementById('result').textContent = text;
 });
