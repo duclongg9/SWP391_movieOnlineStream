@@ -18,9 +18,15 @@ public class SsoController extends HttpServlet {
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         resp.setContentType("application/json;charset=UTF-8");
         String email = req.getParameter("email");
-        if (email == null) { resp.setStatus(400); resp.getWriter().write("{\"error\":\"missing email\"}"); return; }
+        if (email == null) {
+            resp.setStatus(400);
+            resp.getWriter().write("{\"error\":\"missing email\"}");
+            return;
+        }
+        String provider = "google";
+        if (req.getServletPath().contains("facebook")) provider = "facebook";
         if (UserDAO.findByEmail(email) == null) {
-            UserDAO.createUser(email, "");
+            UserDAO.createUserSso(email, provider);
         }
         String token = JwtUtil.generateToken(email);
         PrintWriter out = resp.getWriter();
