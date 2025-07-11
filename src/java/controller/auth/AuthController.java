@@ -29,12 +29,15 @@ public class AuthController extends HttpServlet {
 
 
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        req.setCharacterEncoding("UTF-8");
         resp.setContentType("application/json;charset=UTF-8");
         String path = req.getServletPath();
         PrintWriter out = resp.getWriter();
         if ("/api/auth/register".equals(path)) {
             String email = req.getParameter("email");
             String password = req.getParameter("password");
+            if (email != null) email = email.trim();
+            if (password != null) password = password.trim();
             if (email == null || password == null || email.isEmpty() || password.isEmpty()) {
                 resp.setStatus(400);
                 out.write("{\"error\":\"missing fields\"}");
@@ -54,6 +57,8 @@ public class AuthController extends HttpServlet {
         } else if ("/api/auth/login".equals(path)) {
             String email = req.getParameter("email");
             String password = req.getParameter("password");
+            if (email != null) email = email.trim();
+            if (password != null) password = password.trim();
             User u = UserDAO.validateUser(email, password);
             if (email == null || password == null || email.isEmpty() || password.isEmpty()) {
                 resp.setStatus(400);
