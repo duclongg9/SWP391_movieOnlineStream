@@ -56,6 +56,74 @@ public class UserDAO {
         return null;
     }
 
+    public static boolean updateEmail(String currentEmail, String newEmail) {
+        String sql = "UPDATE users SET email=? WHERE email=?";
+        Connection conn = DBConnection.getConnection();
+        if (conn == null) return false;
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, newEmail);
+            ps.setString(2, currentEmail);
+            return ps.executeUpdate() == 1;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        } finally {
+            DBConnection.closeConnection(conn);
+        }
+    }
+
+    public static boolean changePassword(String email, String newPassHash) {
+        String sql = "UPDATE users SET password=? WHERE email=?";
+        Connection conn = DBConnection.getConnection();
+        if (conn == null) return false;
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, newPassHash);
+            ps.setString(2, email);
+            return ps.executeUpdate() == 1;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        } finally {
+            DBConnection.closeConnection(conn);
+        }
+    }
+
+public static boolean addPoints(String email, int points) {
+        String sql = "UPDATE users SET point_balance = point_balance + ? WHERE email=?";
+        Connection conn = DBConnection.getConnection();
+        if (conn == null) return false;
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, points);
+            ps.setString(2, email);
+            return ps.executeUpdate() == 1;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        } finally {
+            DBConnection.closeConnection(conn);
+        }
+    }
+
+    public static Integer getPointBalance(String email) {
+        String sql = "SELECT point_balance FROM users WHERE email=?";
+        Connection conn = DBConnection.getConnection();
+        if (conn == null) return null;
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, email);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                return rs.getInt(1);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            DBConnection.closeConnection(conn);
+        }
+        return null;
+    }
+
+
+    
     private static User mapRow(ResultSet rs) throws SQLException {
         User u = new User();
         u.setId(rs.getInt("id"));

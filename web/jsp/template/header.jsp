@@ -39,6 +39,9 @@
 
         <a href="<%=request.getContextPath()%>/api/auth/login" class="btn btn-primary" id="loginLink">Sign in</a>
         <a href="<%=request.getContextPath()%>/api/auth/register" class="btn" id="registerLink">Register</a>
+        <a href="<%=request.getContextPath()%>/user/profile" class="btn" id="profileLink" style="display:none;">Profile</a>
+        <a href="<%=request.getContextPath()%>/history" class="btn" id="historyLink" style="display:none;">History</a>
+        <a href="#" class="btn" id="logoutLink" style="display:none;">Logout</a>
         <span id="userEmail" style="color:#fff; margin-left:10px; display:none;"></span>
 
 
@@ -133,11 +136,24 @@
           const emailSpan = document.getElementById('userEmail');
           const loginLink = document.getElementById('loginLink');
           const regLink = document.getElementById('registerLink');
+          const profileLink = document.getElementById('profileLink');
+          const historyLink = document.getElementById('historyLink');
+          const logoutLink = document.getElementById('logoutLink');
           emailSpan.textContent = payload.sub;
           emailSpan.style.display = 'inline-block';
           if (loginLink) loginLink.style.display = 'none';
           if (regLink) regLink.style.display = 'none';
+          if (profileLink) profileLink.style.display = 'inline-block';
+          if (historyLink) historyLink.style.display = 'inline-block';
+          if (logoutLink) logoutLink.style.display = 'inline-block';
         } catch(err) {}
       }
+      const logoutLink = document.getElementById('logoutLink');
+      if (logoutLink) logoutLink.addEventListener('click', async function(e){
+        e.preventDefault();
+        await fetch('<%=request.getContextPath()%>/api/auth/logout', {method:'POST'});
+        localStorage.removeItem('token');
+        window.location.href = '<%=request.getContextPath()%>/index.jsp';
+      });
     })();
   </script>

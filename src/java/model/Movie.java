@@ -14,6 +14,7 @@ public class Movie {
     private String posterUrl;
     private String quality;
     private int year;
+    private int pricePoint;
     private String rating;
     private String genre;
     private String actor;
@@ -23,23 +24,34 @@ public class Movie {
     }
 
     // Basic constructor used in DAO for upcoming movies
-    public Movie(int id, String title, String posterUrl, String quality, int year, String rating) {
+
+    public Movie(int id, String title, String posterUrl, String quality, int year, String rating, int pricePoint) {
         this.id = id;
         this.title = title;
         this.posterUrl = posterUrl;
         this.quality = quality;
         this.year = year;
         this.rating = rating;
+        this.pricePoint = pricePoint;
     }
+
 
     // Full constructor
     public Movie(int id, String title, String posterUrl, String quality,
                  int year, String rating, String genre,
                  String actor, String description) {
-        this(id, title, posterUrl, quality, year, rating);
+         this(id, title, posterUrl, quality, year, rating, 0);
         this.genre = genre;
         this.actor = actor;
         this.description = description;
+    }
+
+    public int getPricePoint() {
+        return pricePoint;
+    }
+
+    public void setPricePoint(int pricePoint) {
+        this.pricePoint = pricePoint;
     }
 
     public int getId() {
