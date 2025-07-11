@@ -65,8 +65,13 @@
       const email = form.email.value.trim();
       const password = form.password.value.trim();
 
-      if (!email || !password || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-        showError('Please enter a valid email and password.');
+      if (!email || !password) {
+        showError('Please enter email and password.');
+        return;
+      }
+
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        showError('Please enter a valid email address.');
         return;
       }
 
@@ -77,21 +82,25 @@
         if (res.ok) {
           try {
             const obj = JSON.parse(text);
-            localStorage.setItem('token', obj.token);
+            if (obj.token) {
+              localStorage.setItem('token', obj.token);
+              window.location.href = base + '/index.jsp';
+            } else {
+              showError('Login successful, but no token received.');
+            }
           } catch (err) {
-            // Ignore parse error
+            showError('Unexpected response format.');
           }
-          window.location.href = base + '/index.jsp';
         } else {
           try {
             const obj = JSON.parse(text);
-            showError(obj.error || 'Login failed');
+            showError(obj.error || 'Login failed. Please check your credentials.');
           } catch (err) {
-            showError(text);
+            showError(text || 'An error occurred during login.');
           }
         }
       } catch (err) {
-        showError('An error occurred. Please try again.');
+        showError('Network error. Please try again later.');
       }
     });
   </script>

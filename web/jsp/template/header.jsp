@@ -8,14 +8,13 @@
 <%
     String ctx = request.getContextPath();
 %>
-<!DOCTYPE html>
 <header class="header" data-header>
     <div class="container">
 
       <div class="overlay" data-overlay></div>
 
-      <a href="<%=request.getContextPath()%>/movies" class="logo">
-        <img src="./assets/images/logo.svg" alt="Filmlane logo">
+      <a href="<%=ctx%>/movies" class="logo">
+        <img src="<%=ctx%>/assets/images/logo.svg" alt="Filmlane logo">
       </a>
 
       <div class="header-actions">
@@ -37,10 +36,10 @@
           </select>
         </div>
 
-        <a href="<%=request.getContextPath()%>/api/auth/login" class="btn btn-primary" id="loginLink">Sign in</a>
-        <a href="<%=request.getContextPath()%>/api/auth/register" class="btn" id="registerLink">Register</a>
-        <a href="<%=request.getContextPath()%>/user/profile" class="btn" id="profileLink" style="display:none;">Profile</a>
-        <a href="<%=request.getContextPath()%>/history" class="btn" id="historyLink" style="display:none;">History</a>
+        <a href="<%=ctx%>/api/auth/login" class="btn btn-primary" id="loginLink">Sign in</a>
+        <a href="<%=ctx%>/api/auth/register" class="btn" id="registerLink">Register</a>
+        <a href="<%=ctx%>/user/profile" class="btn" id="profileLink" style="display:none;">Profile</a>
+        <a href="<%=ctx%>/history" class="btn" id="historyLink" style="display:none;">History</a>
         <a href="#" class="btn" id="logoutLink" style="display:none;">Logout</a>
         <span id="userEmail" style="color:#fff; margin-left:10px; display:none;"></span>
 
@@ -54,8 +53,8 @@
 
         <div class="navbar-top">
 
-          <a href="<%=request.getContextPath()%>/movies" class="logo">
-            <img src="./assets/images/logo.svg" alt="Filmlane logo">
+          <a href="<%=ctx%>/movies" class="logo">
+            <img src="<%=ctx%>/assets/images/logo.svg" alt="Filmlane logo">
           </a>
 
           <button class="menu-close-btn" data-menu-close-btn>
@@ -67,7 +66,7 @@
         <ul class="navbar-list">
 
           <li>
-            <a href="<%=request.getContextPath()%>/movies" class="navbar-link">Home</a>
+            <a href="<%=ctx%>/movies" class="navbar-link">Home</a>
           </li>
 
           <li>
@@ -129,6 +128,7 @@
 <script>
     (function() {
       const token = localStorage.getItem('token');
+      const base = '<%=ctx%>';
       if (token) {
         try {
           const payload = JSON.parse(atob(token.split('.')[1]));
@@ -149,6 +149,7 @@
           if (logoutLink) logoutLink.style.display = 'inline-block';
         } catch (err) {
           console.error('Invalid token:', err);
+          localStorage.removeItem('token');
         }
       }
       const logoutLink = document.getElementById('logoutLink');
@@ -156,12 +157,12 @@
         logoutLink.addEventListener('click', async function(e) {
           e.preventDefault();
           try {
-            await fetch('<%=request.getContextPath()%>/api/auth/logout', { method: 'POST' });
+            await fetch(base + '/api/auth/logout', { method: 'POST' });
           } catch (err) {
-            console.error('Logout failed:', err);
+            console.error('Logout request failed:', err);
           }
           localStorage.removeItem('token');
-          window.location.href = '<%=request.getContextPath()%>/index.jsp';
+          window.location.href = base + '/index.jsp';
         });
       }
     })();

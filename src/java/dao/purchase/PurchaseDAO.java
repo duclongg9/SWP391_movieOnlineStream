@@ -1,3 +1,5 @@
+package dao.purchase;
+
 import dao.connect.DBConnection;
 import model.Purchase;
 

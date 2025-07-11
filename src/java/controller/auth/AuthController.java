@@ -43,7 +43,7 @@ public class AuthController extends HttpServlet {
         String email = req.getParameter("email") != null ? req.getParameter("email").trim() : null;
         String password = req.getParameter("password") != null ? req.getParameter("password").trim() : null;
 
-        if (email == null || password == null || email.isEmpty() || password.isEmpty() || !EMAIL_PATTERN.matcher(email)) {
+        if (email == null || password == null || email.isEmpty() || password.isEmpty() || !EMAIL_PATTERN.matcher(email).matches()) {
             resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
             sendJsonResponse(resp, Map.of("error", "Invalid or missing fields"));
             return;

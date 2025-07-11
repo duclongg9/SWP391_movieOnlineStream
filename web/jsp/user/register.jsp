@@ -67,8 +67,13 @@
       const password = form.password.value.trim();
       const confirmPassword = form.confirmPassword.value.trim();
 
-      if (!email || !password || !confirmPassword || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-        showError('Please enter a valid email and passwords.');
+      if (!email || !password || !confirmPassword) {
+        showError('Please fill in all fields.');
+        return;
+      }
+
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        showError('Please enter a valid email address.');
         return;
       }
 
@@ -88,19 +93,29 @@
 
       try {
         const res = await fetch(base + '/api/auth/register', { method: 'POST', body: data });
+        const text = await res.text();
         if (res.ok) {
-          window.location.href = base + '/api/auth/login';
-        } else {
-          const text = await res.text();
           try {
             const obj = JSON.parse(text);
-            showError(obj.error || 'Registration failed');
+            if (obj.token) {
+              localStorage.setItem('token', obj.token);
+              window.location.href = base + '/index.jsp';
+            } else {
+              window.location.href = base + '/api/auth/login';
+            }
           } catch (err) {
-            showError(text);
+            window.location.href = base + '/api/auth/login';
+          }
+        } else {
+          try {
+            const obj = JSON.parse(text);
+            showError(obj.error || 'Registration failed. Email may already be in use.');
+          } catch (err) {
+            showError(text || 'An error occurred during registration.');
           }
         }
       } catch (err) {
-        showError('An error occurred. Please try again.');
+        showError('Network error. Please try again later.');
       }
     });
   </script>
