@@ -41,7 +41,7 @@ public class PaymentCallbackController extends HttpServlet {
         boolean ok = UserDAO.addPoints(email, points);
         if (ok) {
             model.User u = UserDAO.findByEmail(email);
-            if (u != null) TransactionDAO.logTransaction(u.getId(), amount, points, "SUCCESS");
+            if (u != null) TransactionDAO.logTransaction(u.getId(), amount, points, "SUCCESS", "topup");
             String token = JwtUtil.generateToken(email);
             out.write("{\"token\":\"" + token + "\",\"pointAdded\":" + points + "}");
         } else {

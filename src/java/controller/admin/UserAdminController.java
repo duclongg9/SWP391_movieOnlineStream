@@ -20,15 +20,21 @@ public class UserAdminController extends HttpServlet {
 
     private boolean isAdmin(HttpServletRequest req) {
         String token = req.getHeader("Authorization");
-        if (token != null && token.startsWith("Bearer ")) token = token.substring(7);
+        if (token != null && token.startsWith("Bearer ")) {
+            token = token.substring(7);
+        }
         String email = JwtUtil.verifyToken(token);
-        return "admin@example.com".equals(email);
+        if (email == null) return false;
+        User u = UserDAO.findByEmail(email);
+        return u != null && "admin".equals(u.getRole());
     }
 
     @Override
     protected void service(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         if ("PATCH".equalsIgnoreCase(req.getMethod())) {
             doPatch(req, resp);
+        } else if ("DELETE".equalsIgnoreCase(req.getMethod())) {
+            doDelete(req, resp);
         } else {
             super.service(req, resp);
         }
@@ -66,6 +72,24 @@ public class UserAdminController extends HttpServlet {
         } else {
             resp.setStatus(500);
             out.write("{\"error\":\"update failed\"}");
+        }
+    }
+
+    @Override
+    protected void doDelete(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+        if (!isAdmin(req)) { resp.setStatus(401); return; }
+        String path = req.getPathInfo();
+        if (path == null || path.length() <= 1) { resp.setStatus(400); return; }
+        int id;
+        try { id = Integer.parseInt(path.substring(1)); } catch (NumberFormatException e) { resp.setStatus(400); return; }
+        boolean ok = UserDAO.softDelete(id);
+        resp.setContentType("application/json;charset=UTF-8");
+        PrintWriter out = resp.getWriter();
+        if (ok) {
+            out.write("{\"status\":\"deleted\"}");
+        } else {
+            resp.setStatus(500);
+            out.write("{\"error\":\"delete failed\"}");
         }
     }
 }

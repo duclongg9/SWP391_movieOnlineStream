@@ -82,6 +82,38 @@ public static boolean addMoviePurchase(int userId, int filmId) {
         return false;
     }
 
+    public static Purchase getActivePackage(int userId) {
+        String sql = "SELECT * FROM user_purchase WHERE user_id=? AND package_id IS NOT NULL " +
+                "AND expired_at > NOW() ORDER BY expired_at DESC LIMIT 1";
+        Connection conn = DBConnection.getConnection();
+        if (conn == null) return null;
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, userId);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) return map(rs);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            DBConnection.closeConnection(conn);
+        }
+        return null;
+    }
+
+    public static boolean expire(int purchaseId) {
+        String sql = "UPDATE user_purchase SET expired_at=NOW() WHERE id=?";
+        Connection conn = DBConnection.getConnection();
+        if (conn == null) return false;
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, purchaseId);
+            return ps.executeUpdate() == 1;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        } finally {
+            DBConnection.closeConnection(conn);
+        }
+    }
+
 
     
     private static Purchase map(ResultSet rs) throws SQLException {

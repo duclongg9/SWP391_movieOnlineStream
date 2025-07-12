@@ -97,6 +97,9 @@ public class AuthController extends HttpServlet {
 
         String email = req.getParameter("email") != null ? req.getParameter("email").trim() : null;
         String password = req.getParameter("password") != null ? req.getParameter("password").trim() : null;
+        String fullName = req.getParameter("fullName") != null ? req.getParameter("fullName").trim() : null;
+        String phone = req.getParameter("phone") != null ? req.getParameter("phone").trim() : null;
+        String username = req.getParameter("username") != null ? req.getParameter("username").trim() : null;
 
         if (email == null || password == null || email.isEmpty() || password.isEmpty() || !EMAIL_PATTERN.matcher(email).matches()) {
             resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
@@ -329,7 +332,10 @@ public class AuthController extends HttpServlet {
     }
 
     private void handleRegister(HttpServletRequest req, HttpServletResponse resp, String email, String password) throws IOException {
-        boolean success = UserDAO.createUser(email, PasswordUtil.hash(password));
+        String username = req.getParameter("username");
+        String fullName = req.getParameter("fullName");
+        String phone = req.getParameter("phone");
+        boolean success = UserDAO.createUser(username, fullName, phone, email, PasswordUtil.hash(password));
         if (success) {
             String token = JwtUtil.generateToken(email);
             resp.setStatus(HttpServletResponse.SC_CREATED);

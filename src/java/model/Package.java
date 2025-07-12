@@ -6,6 +6,7 @@ public class Package {
     private String description;
     private int durationDays;
     private int pricePoint;
+    private boolean deleted;
 
     public int getId() {
         return id;
@@ -45,5 +46,13 @@ public class Package {
 
     public void setPricePoint(int pricePoint) {
         this.pricePoint = pricePoint;
+    }
+
+    public boolean isDeleted() {
+        return deleted;
+    }
+
+    public void setDeleted(boolean deleted) {
+        this.deleted = deleted;
     }
 }

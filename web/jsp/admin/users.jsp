@@ -16,7 +16,7 @@
       <h2 class="h2 section-title">Users</h2>
       <table id="userTable" class="table">
         <thead>
-          <tr><th>ID</th><th>Email</th><th>Points</th><th>Status</th><th>Action</th></tr>
+          <tr><th>ID</th><th>Username</th><th>Full name</th><th>Phone</th><th>Email</th><th>Points</th><th>Status</th><th>Deleted</th><th>Action</th></tr>
         </thead>
         <tbody></tbody>
       </table>
@@ -25,7 +25,7 @@
 </main>
 <script>
 const base = '<%=request.getContextPath()%>';
-const token = localStorage.getItem('token');
+const token = localStorage.getItem('adminToken');
 function load(){
   fetch(base + '/api/admin/users',{headers:{Authorization:'Bearer '+token}})
     .then(r=>r.json()).then(list=>{
@@ -33,18 +33,22 @@ function load(){
       tb.innerHTML='';
       list.forEach(u=>{
         const tr=document.createElement('tr');
-        tr.innerHTML=`<td>${u.id}</td><td>${u.email}</td><td>${u.pointBalance}</td>`+
+        tr.innerHTML=`<td>${u.id}</td><td>${u.username||''}</td><td>${u.fullName||''}</td><td>${u.phone||''}</td><td>${u.email}</td><td>${u.pointBalance}</td>`+
           `<td>${u.locked? 'Locked':'Active'}</td>`+
-          `<td><button data-id="${u.id}" data-action="${u.locked?'unlock':'lock'}">${u.locked?'Unlock':'Lock'}</button></td>`;
+          `<td>${u.deleted? 'Yes':'No'}</td>`+
+          `<td><button data-id="${u.id}" data-action="${u.locked?'unlock':'lock'}">${u.locked?'Unlock':'Lock'}</button>`+
+          `<button data-id="${u.id}" data-delete="true">Delete</button></td>`;
         tb.appendChild(tr);
       });
     });
 }
 document.addEventListener('click',e=>{
-  if(e.target.dataset && e.target.dataset.action){
-    fetch(base + '/api/admin/user/'+e.target.dataset.id+'/'+e.target.dataset.action,{
-      method:'PATCH',headers:{Authorization:'Bearer '+token}
-    }).then(load);
+  if(e.target.dataset){
+    if(e.target.dataset.action){
+      fetch(base + '/api/admin/user/'+e.target.dataset.id+'/'+e.target.dataset.action,{method:'PATCH',headers:{Authorization:'Bearer '+token}}).then(load);
+    } else if(e.target.dataset.delete){
+      fetch(base + '/api/admin/user/'+e.target.dataset.id,{method:'DELETE',headers:{Authorization:'Bearer '+token}}).then(load);
+    }
   }
 });
 load();

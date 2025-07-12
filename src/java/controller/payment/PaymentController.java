@@ -14,8 +14,14 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
 
-@WebServlet("/api/payment/topup")
+@WebServlet(urlPatterns = {"/api/payment/topup", "/topup"})
 public class PaymentController extends HttpServlet {
+    @Override
+    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        if ("/topup".equals(req.getServletPath())) {
+            req.getRequestDispatcher("/jsp/user/topup.jsp").forward(req, resp);
+        }
+    }
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         resp.setContentType("application/json;charset=UTF-8");
@@ -47,10 +53,17 @@ public class PaymentController extends HttpServlet {
             out.write("{\"error\":\"not found\"}");
             return;
         }
+        String method = req.getParameter("method");
+        if ("vnpay".equalsIgnoreCase(method)) {
+            String url = req.getContextPath() + "/api/payment/callback?vnp_ResponseCode=00&amount="
+                    + amount + "&email=" + email;
+            out.write("{\"paymentUrl\":\"" + url + "\"}");
+            return;
+        }
         int points = amount / 1000;
         boolean ok = UserDAO.addPoints(email, points);
         if (ok) {
-            TransactionDAO.logTransaction(u.getId(), amount, points, "SUCCESS");
+            TransactionDAO.logTransaction(u.getId(), amount, points, "SUCCESS", "topup");
             out.write("{\"pointAdded\":" + points + "}");
         } else {
             resp.setStatus(500);

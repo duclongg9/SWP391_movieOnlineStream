@@ -19,6 +19,7 @@ public class Movie {
     private String genre;
     private String actor;
     private String description;
+    private String videoPath;
 
     public Movie() {
     }
@@ -124,5 +125,13 @@ public class Movie {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public String getVideoPath() {
+        return videoPath;
+    }
+
+    public void setVideoPath(String videoPath) {
+        this.videoPath = videoPath;
     }
 }
