@@ -41,23 +41,23 @@ public class AuthController extends HttpServlet {
     // Google OAuth2 configuration (replace with actual values)
     // Google OAuth2 configuration loaded from environment variables
     private static final String GOOGLE_CLIENT_ID =
-            System.getenv().getOrDefault("GOOGLE_CLIENT_ID", "your_google_client_id");
+            System.getenv().getOrDefault("GOOGLE_CLIENT_ID", "");
     private static final String GOOGLE_CLIENT_SECRET =
-            System.getenv().getOrDefault("GOOGLE_CLIENT_SECRET", "your_google_client_secret");
+            System.getenv().getOrDefault("GOOGLE_CLIENT_SECRET", "");
     private static final String GOOGLE_REDIRECT_URI =
             System.getenv().getOrDefault(
                     "GOOGLE_REDIRECT_URI",
-                    "http://localhost:8080/api/auth/sso/google/callback");
+                    "http://localhost:9999/SWP391_movieOnlineStream/api/auth/sso/google/callback");
 
     // Facebook OAuth2 configuration (replace with actual values)
     private static final String FACEBOOK_CLIENT_ID =
-            System.getenv().getOrDefault("FACEBOOK_CLIENT_ID", "your_facebook_app_id");
+            System.getenv().getOrDefault("FACEBOOK_CLIENT_ID", "");
     private static final String FACEBOOK_CLIENT_SECRET =
-            System.getenv().getOrDefault("FACEBOOK_CLIENT_SECRET", "your_facebook_app_secret");
+            System.getenv().getOrDefault("FACEBOOK_CLIENT_SECRET", "");
     private static final String FACEBOOK_REDIRECT_URI =
             System.getenv().getOrDefault(
                     "FACEBOOK_REDIRECT_URI",
-                    "http://localhost:8080/api/auth/sso/facebook/callback");
+                    "http://localhost:9999/SWP391_movieOnlineStream/api/auth/sso/facebook/callback");
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
@@ -176,7 +176,7 @@ public class AuthController extends HttpServlet {
     private void handleFacebookRedirect(HttpServletResponse resp) throws IOException {
         String authUrl = "https://www.facebook.com/dialog/oauth?client_id=" + FACEBOOK_CLIENT_ID +
                 "&redirect_uri=" + URLEncoder.encode(FACEBOOK_REDIRECT_URI, StandardCharsets.UTF_8) +
-                "&scope=email";
+                "&scope=public_profile";
         resp.sendRedirect(authUrl);
     }
 
