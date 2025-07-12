@@ -44,7 +44,7 @@ public class AuthController extends HttpServlet {
         private static final String GOOGLE_CLIENT_ID =
             System.getenv().getOrDefault("GOOGLE_CLIENT_ID", "142934635795-5ra2ujg4nuvdo6e9p6m79jauncijb7qg.apps.googleusercontent.com");
     private static final String GOOGLE_CLIENT_SECRET =
-            System.getenv().getOrDefault("GOOGLE_CLIENT_SECRET", "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");
+            System.getenv().getOrDefault("GOOGLE_CLIENT_SECRET", "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");
     private static final String GOOGLE_REDIRECT_URI =
             System.getenv().getOrDefault(
                     "GOOGLE_REDIRECT_URI",
