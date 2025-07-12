@@ -6,11 +6,15 @@ USE online_film;
 -- User Table (Thêm role cho admin)
 CREATE TABLE IF NOT EXISTS users (
   id INT PRIMARY KEY AUTO_INCREMENT,
+  username VARCHAR(100) UNIQUE,
+  full_name VARCHAR(255),
+  phone VARCHAR(20),
   email VARCHAR(255) UNIQUE,
   password VARCHAR(255),
   sso_provider ENUM('google','facebook') NULL,
   point_balance INT DEFAULT 0,
   is_locked BOOLEAN DEFAULT FALSE,
+  is_deleted BOOLEAN DEFAULT FALSE,
   role ENUM('user','admin') DEFAULT 'user',
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
@@ -21,6 +25,7 @@ CREATE TABLE IF NOT EXISTS movies (
   title VARCHAR(255),
   genre VARCHAR(100),
   actor VARCHAR(255),
+  video_path VARCHAR(255),
   price_point INT,
   description TEXT,
   duration_min INT,
@@ -56,6 +61,7 @@ CREATE TABLE IF NOT EXISTS package (
   description TEXT,
   duration_days INT,
   price_point INT,
+  is_deleted BOOLEAN DEFAULT FALSE,
   created_at DATETIME DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -104,15 +110,15 @@ CREATE TABLE IF NOT EXISTS watch_history (
 );
 
 -- Sample data
-INSERT INTO movies(title, genre, actor, price_point, description, duration_min) VALUES
-  ('The Northman','Action','Alexander Skarsgård',50,'','0'),
-  ('Doctor Strange in the Multiverse of Madness','Fantasy','Benedict Cumberbatch',60,'','0');
+INSERT INTO movies(title, genre, actor, video_path, price_point, description, duration_min) VALUES
+  ('The Northman','Action','Alexander Skarsgård','/videos/northman.mp4',50,'','0'),
+  ('Doctor Strange in the Multiverse of Madness','Fantasy','Benedict Cumberbatch','/videos/drstrange.mp4',60,'','0');
 
--- Sample data for users
-INSERT INTO users (email, password, point_balance)
+INSERT INTO users (username, full_name, phone, email, password, role, point_balance, is_deleted)
 VALUES
-  ('user1@example.com','8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92',100),
-  ('user2@example.com','5e884898da28047151d0e56f8dc6292773603d0d6aabbdd62a11ef721d1542d8',200);
+  ('user1','User One','0900000001','user1@example.com','8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92','user',100,0),
+  ('user2','User Two','0900000002','user2@example.com','5e884898da28047151d0e56f8dc6292773603d0d6aabbdd62a11ef721d1542d8','user',200,0),
+  ('admin','Administrator','0900000000','admin@example.com','0192023a7bbd73250516f069df18b500', 'admin',0,0);
 
 -- Sample data for wallet
 INSERT INTO wallet (user_id, balance_point, last_recharged)

@@ -28,6 +28,7 @@ public class MovieAdminController extends HttpServlet {
         m.setTitle(req.getParameter("title"));
         m.setGenre(req.getParameter("genre"));
         m.setActor(req.getParameter("actor"));
+        m.setVideoPath(req.getParameter("videoPath"));
         m.setDescription(req.getParameter("description"));
         try { m.setPricePoint(Integer.parseInt(req.getParameter("price"))); } catch(Exception e){ m.setPricePoint(0); }
         boolean ok = MovieDAO.create(m);
@@ -48,6 +49,7 @@ public class MovieAdminController extends HttpServlet {
         m.setTitle(req.getParameter("title"));
         m.setGenre(req.getParameter("genre"));
         m.setActor(req.getParameter("actor"));
+        m.setVideoPath(req.getParameter("videoPath"));
         m.setDescription(req.getParameter("description"));
         try { m.setPricePoint(Integer.parseInt(req.getParameter("price"))); } catch(Exception e){ m.setPricePoint(0); }
         boolean ok = MovieDAO.update(m);

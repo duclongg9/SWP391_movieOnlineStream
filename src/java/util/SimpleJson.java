@@ -42,10 +42,25 @@ public class SimpleJson {
     public static String userToJson(User u) {
         return "{" +
             "\"id\":" + u.getId() +
+            ",\"username\":\"" + escape(u.getUsername()==null?"":u.getUsername()) + "\"" +
+            ",\"fullName\":\"" + escape(u.getFullName()==null?"":u.getFullName()) + "\"" +
+            ",\"phone\":\"" + escape(u.getPhone()==null?"":u.getPhone()) + "\"" +
             ",\"email\":\"" + escape(u.getEmail()) + "\"" +
             ",\"pointBalance\":" + u.getPointBalance() +
             ",\"locked\":" + u.isLocked() +
+            ",\"deleted\":" + u.isDeleted() +
             "}";
+    }
+
+    public static String listToJson(List<Map<String,Object>> list) {
+        StringBuilder sb = new StringBuilder();
+        sb.append('[');
+        for (int i=0;i<list.size();i++) {
+            sb.append(toJson(list.get(i)));
+            if (i < list.size()-1) sb.append(',');
+        }
+        sb.append(']');
+        return sb.toString();
     }
 
     public static String getString(String json, String key) {

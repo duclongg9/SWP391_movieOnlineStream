@@ -53,16 +53,17 @@ public class MovieDAO {
     
     
     public static boolean create(Movie m) {
-        String sql = "INSERT INTO movies(title, genre, actor, description, price_point) " +
-                "VALUES(?,?,?,?,?)";
+        String sql = "INSERT INTO movies(title, genre, actor, video_path, description, price_point) " +
+                "VALUES(?,?,?,?,?,?)";
         Connection conn = DBConnection.getConnection();
         if (conn == null) return false;
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, m.getTitle());
             ps.setString(2, m.getGenre());
             ps.setString(3, m.getActor());
-            ps.setString(4, m.getDescription());
-            ps.setInt(5, m.getPricePoint());
+            ps.setString(4, m.getVideoPath());
+            ps.setString(5, m.getDescription());
+            ps.setInt(6, m.getPricePoint());
             return ps.executeUpdate() == 1;
         } catch (SQLException e) {
             e.printStackTrace();
@@ -73,16 +74,17 @@ public class MovieDAO {
     }
 
     public static boolean update(Movie m) {
-        String sql = "UPDATE movies SET title=?, genre=?, actor=?, description=?, price_point=? WHERE id=?";
+        String sql = "UPDATE movies SET title=?, genre=?, actor=?, video_path=?, description=?, price_point=? WHERE id=?";
         Connection conn = DBConnection.getConnection();
         if (conn == null) return false;
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, m.getTitle());
             ps.setString(2, m.getGenre());
             ps.setString(3, m.getActor());
-            ps.setString(4, m.getDescription());
-            ps.setInt(5, m.getPricePoint());
-            ps.setInt(6, m.getId());
+            ps.setString(4, m.getVideoPath());
+            ps.setString(5, m.getDescription());
+            ps.setInt(6, m.getPricePoint());
+            ps.setInt(7, m.getId());
             return ps.executeUpdate() == 1;
         } catch (SQLException e) {
             e.printStackTrace();
@@ -170,6 +172,7 @@ public class MovieDAO {
         m.setTitle(rs.getString("title"));
         m.setGenre(rs.getString("genre"));
         m.setActor(rs.getString("actor"));
+        m.setVideoPath(rs.getString("video_path"));
         m.setDescription(rs.getString("description"));
         m.setPricePoint(rs.getInt("price_point"));
         return m;

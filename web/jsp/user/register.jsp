@@ -27,6 +27,9 @@
         <div class="container">
           <h2 class="h2 section-title">Register</h2>
           <form id="regForm" class="auth-form">
+            <input type="text" name="username" placeholder="Username" required />
+            <input type="text" name="fullName" placeholder="Full name" required />
+            <input type="text" name="phone" placeholder="Phone" required />
             <input type="email" name="email" placeholder="Email" required />
             <input type="password" name="password" placeholder="Password" required />
             <input type="password" name="confirmPassword" placeholder="Confirm Password" required />
@@ -66,11 +69,14 @@
       e.preventDefault();
       hideError();
       const form = e.target;
+      const username = form.username.value.trim();
+      const fullName = form.fullName.value.trim();
+      const phone = form.phone.value.trim();
       const email = form.email.value.trim();
       const password = form.password.value.trim();
       const confirmPassword = form.confirmPassword.value.trim();
 
-      if (!email || !password || !confirmPassword) {
+      if (!username || !fullName || !phone || !email || !password || !confirmPassword) {
         showError('Please fill in all fields.');
         return;
       }
@@ -91,6 +97,9 @@
       }
 
       const data = new URLSearchParams();
+      data.append('username', username);
+      data.append('fullName', fullName);
+      data.append('phone', phone);
       data.append('email', email);
       data.append('password', password);
 

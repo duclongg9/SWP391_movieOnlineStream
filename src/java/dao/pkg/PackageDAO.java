@@ -46,7 +46,7 @@ public class PackageDAO {
     }
 
     public static boolean delete(int id) {
-        String sql = "DELETE FROM package WHERE id=?";
+        String sql = "UPDATE package SET is_deleted=1 WHERE id=?";
         Connection conn = DBConnection.getConnection();
         if (conn == null) return false;
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -61,7 +61,7 @@ public class PackageDAO {
     }
 
     public static Package findById(int id) {
-        String sql = "SELECT * FROM package WHERE id=?";
+        String sql = "SELECT * FROM package WHERE id=? AND is_deleted=0";
         Connection conn = DBConnection.getConnection();
         if (conn == null) return null;
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -79,7 +79,7 @@ public class PackageDAO {
     }
 
     public static List<Package> findAll() {
-        String sql = "SELECT * FROM package";
+        String sql = "SELECT * FROM package WHERE is_deleted=0";
         Connection conn = DBConnection.getConnection();
         List<Package> list = new ArrayList<>();
         if (conn == null) return list;
@@ -103,6 +103,7 @@ public class PackageDAO {
         p.setDescription(rs.getString("description"));
         p.setDurationDays(rs.getInt("duration_days"));
         p.setPricePoint(rs.getInt("price_point"));
+        p.setDeleted(rs.getBoolean("is_deleted"));
         return p;
     }
 }
