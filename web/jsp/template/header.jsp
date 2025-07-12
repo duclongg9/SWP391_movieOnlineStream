@@ -40,6 +40,7 @@
         <a href="<%=ctx%>/api/auth/register" class="btn" id="registerLink">Register</a>
         <a href="<%=ctx%>/user/profile" class="btn" id="profileLink" style="display:none;">Profile</a>
         <a href="<%=ctx%>/history" class="btn" id="historyLink" style="display:none;">History</a>
+        <a href="<%=ctx%>/admin/users" class="btn" id="adminLink" style="display:none;">Admin</a>
         <a href="#" class="btn" id="logoutLink" style="display:none;">Logout</a>
         <span id="userEmail" style="color:#fff; margin-left:10px; display:none;"></span>
 
@@ -138,6 +139,7 @@
           const profileLink = document.getElementById('profileLink');
           const historyLink = document.getElementById('historyLink');
           const logoutLink = document.getElementById('logoutLink');
+          const adminLink = document.getElementById('adminLink');
           if (payload.sub) {
             emailSpan.textContent = payload.sub;
             emailSpan.style.display = 'inline-block';
@@ -147,6 +149,9 @@
           if (profileLink) profileLink.style.display = 'inline-block';
           if (historyLink) historyLink.style.display = 'inline-block';
           if (logoutLink) logoutLink.style.display = 'inline-block';
+          if (adminLink && payload.sub === 'admin@example.com') {
+            adminLink.style.display = 'inline-block';
+          }
         } catch (err) {
           console.error('Invalid token:', err);
           localStorage.removeItem('token');

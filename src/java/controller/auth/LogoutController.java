@@ -1,6 +1,6 @@
 package controller.auth;
 
-import com.google.gson.Gson;
+
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
@@ -13,7 +13,7 @@ import java.util.Map;
 @WebServlet("/api/auth/logout")
 public class LogoutController extends HttpServlet {
 
-    private static final Gson GSON = new Gson();
+
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
@@ -23,7 +23,7 @@ public class LogoutController extends HttpServlet {
 
     private void sendJsonResponse(HttpServletResponse resp, Map<String, Object> data) throws IOException {
         try (var out = resp.getWriter()) {
-            out.print(GSON.toJson(data));
+            out.print(util.SimpleJson.toJson(data));
         }
     }
 }

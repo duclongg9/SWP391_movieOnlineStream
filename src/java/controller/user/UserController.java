@@ -1,6 +1,6 @@
  package controller.user;
 
-import com.google.gson.Gson;
+
 import dao.user.UserDAO;
 import model.User;
 import util.JwtUtil;
@@ -20,7 +20,7 @@ import java.util.regex.Pattern;
 @WebServlet(urlPatterns = {"/api/user/profile", "/api/user/change-password", "/user/profile"})
 public class UserController extends HttpServlet {
 
-    private static final Gson GSON = new Gson();
+
     private static final Pattern EMAIL_PATTERN = Pattern.compile("^[A-Za-z0-9+_.-]+@(.+)$");
 
     @Override
@@ -125,7 +125,7 @@ public class UserController extends HttpServlet {
 
     private void sendJsonResponse(HttpServletResponse resp, Map<String, Object> data) throws IOException {
         try (var out = resp.getWriter()) {
-            out.print(GSON.toJson(data));
+            out.print(util.SimpleJson.toJson(data));
         }
     }
 }

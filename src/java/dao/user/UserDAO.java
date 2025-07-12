@@ -142,6 +142,40 @@ public static boolean addPoints(String email, int points) {
         return null;
     }
 
+    public static boolean setLocked(int id, boolean locked) {
+        String sql = "UPDATE users SET is_locked=? WHERE id=?";
+        Connection conn = DBConnection.getConnection();
+        if (conn == null) return false;
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setBoolean(1, locked);
+            ps.setInt(2, id);
+            return ps.executeUpdate() == 1;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        } finally {
+            DBConnection.closeConnection(conn);
+        }
+    }
+
+    public static java.util.List<User> findAll() {
+        String sql = "SELECT * FROM users";
+        Connection conn = DBConnection.getConnection();
+        java.util.List<User> list = new java.util.ArrayList<>();
+        if (conn == null) return list;
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                list.add(mapRow(rs));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            DBConnection.closeConnection(conn);
+        }
+        return list;
+    }
+
 
     
     private static User mapRow(ResultSet rs) throws SQLException {

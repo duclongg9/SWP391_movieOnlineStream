@@ -1,6 +1,6 @@
 package controller.auth;
 
-import com.google.gson.Gson;
+
 import dao.user.UserDAO;
 import model.User;
 import util.JwtUtil;
@@ -11,6 +11,7 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
@@ -35,8 +36,8 @@ import java.util.regex.Pattern;
 })
 public class AuthController extends HttpServlet {
 
-    private static final Gson GSON = new Gson();
     private static final Pattern EMAIL_PATTERN = Pattern.compile("^[A-Za-z0-9+_.-]+@(.+)$");
+    private static final String OAUTH_STATE = "oauth_state";
 
     // Google OAuth2 configuration (replace with actual values)
     // Google OAuth2 configuration loaded from environment variables
@@ -70,13 +71,13 @@ public class AuthController extends HttpServlet {
                 req.getRequestDispatcher("/jsp/user/register.jsp").forward(req, resp);
                 break;
             case "/api/auth/sso/google":
-                handleGoogleRedirect(resp);
+                handleGoogleRedirect(req, resp);
                 break;
             case "/api/auth/sso/google/callback":
                 handleGoogleCallback(req, resp);
                 break;
             case "/api/auth/sso/facebook":
-                handleFacebookRedirect(resp);
+                handleFacebookRedirect(req, resp);
                 break;
             case "/api/auth/sso/facebook/callback":
                 handleFacebookCallback(req, resp);
@@ -112,13 +113,27 @@ public class AuthController extends HttpServlet {
         }
     }
 
-    private void handleGoogleRedirect(HttpServletResponse resp) throws IOException {
+     private void handleGoogleRedirect(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+        if (GOOGLE_CLIENT_ID.isEmpty() || GOOGLE_CLIENT_SECRET.isEmpty()) {
+            resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Google SSO not configured");
+            return;
+        }
+        String state = generateState(req);
         String authUrl = "https://accounts.google.com/o/oauth2/v2/auth?scope=email%20profile&access_type=offline&include_granted_scopes=true&response_type=code&redirect_uri=" +
-                URLEncoder.encode(GOOGLE_REDIRECT_URI, StandardCharsets.UTF_8) + "&client_id=" + GOOGLE_CLIENT_ID;
+                URLEncoder.encode(GOOGLE_REDIRECT_URI, StandardCharsets.UTF_8) + "&client_id=" + GOOGLE_CLIENT_ID +
+                "&state=" + URLEncoder.encode(state, StandardCharsets.UTF_8);
         resp.sendRedirect(authUrl);
     }
 
     private void handleGoogleCallback(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+        HttpSession session = req.getSession(false);
+        String state = req.getParameter("state");
+        if (session == null || state == null || !state.equals(session.getAttribute(OAUTH_STATE))) {
+            resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            sendJsonResponse(resp, Map.of("error", "Invalid state"));
+            return;
+        }
+        session.removeAttribute(OAUTH_STATE);
         String code = req.getParameter("code");
         if (code == null || code.isEmpty()) {
             resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
@@ -136,8 +151,7 @@ public class AuthController extends HttpServlet {
         params.put("grant_type", "authorization_code");
 
         String tokenResponse = sendPostRequest(tokenUrl, params);
-        Map<String, Object> tokenJson = GSON.fromJson(tokenResponse, Map.class);
-        String accessToken = (String) tokenJson.get("access_token");
+        String accessToken = util.SimpleJson.getString(tokenResponse, "access_token");
 
         if (accessToken == null) {
             resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
@@ -148,8 +162,7 @@ public class AuthController extends HttpServlet {
         // Get user info
         String userInfoUrl = "https://www.googleapis.com/oauth2/v1/userinfo?alt=json";
         String userInfoResponse = sendGetRequest(userInfoUrl, accessToken);
-        Map<String, Object> userInfo = GSON.fromJson(userInfoResponse, Map.class);
-        String email = (String) userInfo.get("email");
+        String email = util.SimpleJson.getString(userInfoResponse, "email");
 
         if (email == null) {
             resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
@@ -173,14 +186,28 @@ public class AuthController extends HttpServlet {
         sendTokenRedirect(resp, token, req.getContextPath());
     }
 
-    private void handleFacebookRedirect(HttpServletResponse resp) throws IOException {
+    private void handleFacebookRedirect(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+        if (FACEBOOK_CLIENT_ID.isEmpty() || FACEBOOK_CLIENT_SECRET.isEmpty()) {
+            resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Facebook SSO not configured");
+            return;
+        }
+        String state = generateState(req);
         String authUrl = "https://www.facebook.com/dialog/oauth?client_id=" + FACEBOOK_CLIENT_ID +
                 "&redirect_uri=" + URLEncoder.encode(FACEBOOK_REDIRECT_URI, StandardCharsets.UTF_8) +
-                "&scope=public_profile";
+                "&scope=public_profile" +
+                "&state=" + URLEncoder.encode(state, StandardCharsets.UTF_8);
         resp.sendRedirect(authUrl);
     }
 
     private void handleFacebookCallback(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+        HttpSession session = req.getSession(false);
+        String state = req.getParameter("state");
+        if (session == null || state == null || !state.equals(session.getAttribute(OAUTH_STATE))) {
+            resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            sendJsonResponse(resp, Map.of("error", "Invalid state"));
+            return;
+        }
+        session.removeAttribute(OAUTH_STATE);
         String code = req.getParameter("code");
         if (code == null || code.isEmpty()) {
             resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
@@ -195,8 +222,8 @@ public class AuthController extends HttpServlet {
                 "&code=" + code;
 
         String tokenResponse = sendGetRequest(tokenUrl, null);
-        Map<String, Object> tokenJson = GSON.fromJson(tokenResponse, Map.class);
-        String accessToken = tokenJson != null ? (String) tokenJson.get("access_token") : null;
+        String accessToken = util.SimpleJson.getString(tokenResponse, "access_token");
+
 
         if (accessToken == null) {
             resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
@@ -207,8 +234,7 @@ public class AuthController extends HttpServlet {
         // Get user info
         String userInfoUrl = "https://graph.facebook.com/me?fields=id,name,email&access_token=" + accessToken;
         String userInfoResponse = sendGetRequest(userInfoUrl, null);
-        Map<String, Object> userInfo = GSON.fromJson(userInfoResponse, Map.class);
-        String email = (String) userInfo.get("email");
+        String email = util.SimpleJson.getString(userInfoResponse, "email");
 
         if (email == null) {
             resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
@@ -264,6 +290,15 @@ public class AuthController extends HttpServlet {
         return readResponse(conn);
     }
 
+    private String generateState(HttpServletRequest req) {
+        String state = java.util.UUID.randomUUID().toString();
+        HttpSession session = req.getSession(true);
+        session.setAttribute(OAUTH_STATE, state);
+        return state;
+    }
+
+
+    
     private String readResponse(HttpURLConnection conn) throws IOException {
         try (BufferedReader in = new BufferedReader(new InputStreamReader(conn.getInputStream()))) {
             String inputLine;
@@ -318,7 +353,7 @@ public class AuthController extends HttpServlet {
 
     private void sendJsonResponse(HttpServletResponse resp, Map<String, Object> data) throws IOException {
         try (var out = resp.getWriter()) {
-            out.print(GSON.toJson(data));
+            out.print(util.SimpleJson.toJson(data));
         }
     }
 }
