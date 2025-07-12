@@ -195,7 +195,8 @@ public class AuthController extends HttpServlet {
                 "&code=" + code;
 
         String tokenResponse = sendGetRequest(tokenUrl, null);
-        String accessToken = tokenResponse.split("&")[0].split("=")[1];
+        Map<String, Object> tokenJson = GSON.fromJson(tokenResponse, Map.class);
+        String accessToken = tokenJson != null ? (String) tokenJson.get("access_token") : null;
 
         if (accessToken == null) {
             resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
