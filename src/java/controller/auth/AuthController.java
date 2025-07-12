@@ -41,10 +41,10 @@ public class AuthController extends HttpServlet {
 
     // Google OAuth2 configuration (replace with actual values)
     // Google OAuth2 configuration loaded from environment variables
-    private static final String GOOGLE_CLIENT_ID =
-            System.getenv().getOrDefault("GOOGLE_CLIENT_ID", "");
+        private static final String GOOGLE_CLIENT_ID =
+            System.getenv().getOrDefault("GOOGLE_CLIENT_ID", "142934635795-5ra2ujg4nuvdo6e9p6m79jauncijb7qg.apps.googleusercontent.com");
     private static final String GOOGLE_CLIENT_SECRET =
-            System.getenv().getOrDefault("GOOGLE_CLIENT_SECRET", "");
+            System.getenv().getOrDefault("GOOGLE_CLIENT_SECRET", "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");
     private static final String GOOGLE_REDIRECT_URI =
             System.getenv().getOrDefault(
                     "GOOGLE_REDIRECT_URI",
@@ -52,9 +52,9 @@ public class AuthController extends HttpServlet {
 
     // Facebook OAuth2 configuration (replace with actual values)
     private static final String FACEBOOK_CLIENT_ID =
-            System.getenv().getOrDefault("FACEBOOK_CLIENT_ID", "");
+            System.getenv().getOrDefault("FACEBOOK_CLIENT_ID", "1044612457872751");
     private static final String FACEBOOK_CLIENT_SECRET =
-            System.getenv().getOrDefault("FACEBOOK_CLIENT_SECRET", "");
+            System.getenv().getOrDefault("FACEBOOK_CLIENT_SECRET", "6aa1f2543fc0d2185686fee44ade5573");
     private static final String FACEBOOK_REDIRECT_URI =
             System.getenv().getOrDefault(
                     "FACEBOOK_REDIRECT_URI",
