@@ -1,0 +1,102 @@
+package controller.auth;
+
+import dao.user.UserDAO;
+import util.JwtUtil;
+import util.HttpUtil;
+import util.SimpleJson;
+
+import jakarta.servlet.ServletException;
+import jakarta.servlet.annotation.WebServlet;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.util.Map;
+
+@WebServlet(urlPatterns = {
+        "/api/auth/sso/google/callback",
+        "/api/auth/sso/facebook/callback"
+})
+public class SsoCallbackController extends HttpServlet {
+    private static final String OAUTH_STATE = "oauth_state";
+    private static final String GOOGLE_CLIENT_ID =
+            System.getenv().getOrDefault("GOOGLE_CLIENT_ID", "");
+    private static final String GOOGLE_CLIENT_SECRET =
+            System.getenv().getOrDefault("GOOGLE_CLIENT_SECRET", "");
+    private static final String GOOGLE_REDIRECT_URI =
+            System.getenv().getOrDefault("GOOGLE_REDIRECT_URI",
+                    "http://localhost:9999/SWP391_movieOnlineStream/api/auth/sso/google/callback");
+
+    private static final String FACEBOOK_CLIENT_ID =
+            System.getenv().getOrDefault("FACEBOOK_CLIENT_ID", "");
+    private static final String FACEBOOK_CLIENT_SECRET =
+            System.getenv().getOrDefault("FACEBOOK_CLIENT_SECRET", "");
+    private static final String FACEBOOK_REDIRECT_URI =
+            System.getenv().getOrDefault("FACEBOOK_REDIRECT_URI",
+                    "http://localhost:9999/SWP391_movieOnlineStream/api/auth/sso/facebook/callback");
+
+    @Override
+    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        String state = req.getParameter("state");
+        String code = req.getParameter("code");
+        String sessionState = (String) req.getSession().getAttribute(OAUTH_STATE);
+
+        if (state == null || !state.equals(sessionState) || code == null || code.isBlank()) {
+            resp.sendError(HttpServletResponse.SC_BAD_REQUEST, "Invalid SSO callback");
+            return;
+        }
+
+        String provider = req.getServletPath().contains("google") ? "google" : "facebook";
+        req.getSession().removeAttribute(OAUTH_STATE);
+        String email = null;
+        try {
+            if ("google".equals(provider)) {
+                String tokenJson = HttpUtil.postForm(
+                        "https://oauth2.googleapis.com/token",
+                        Map.of(
+                                "code", code,
+                                "client_id", GOOGLE_CLIENT_ID,
+                                "client_secret", GOOGLE_CLIENT_SECRET,
+                                "redirect_uri", GOOGLE_REDIRECT_URI,
+                                "grant_type", "authorization_code"
+                        ));
+                String accessToken = SimpleJson.getString(tokenJson, "access_token");
+                if (accessToken != null) {
+                    String userJson = HttpUtil.get(
+                            "https://www.googleapis.com/oauth2/v2/userinfo?access_token=" +
+                                    java.net.URLEncoder.encode(accessToken, java.nio.charset.StandardCharsets.UTF_8));
+                    email = SimpleJson.getString(userJson, "email");
+                }
+            } else {
+                String tokenJson = HttpUtil.get(
+                        "https://graph.facebook.com/v10.0/oauth/access_token" +
+                                "?client_id=" + FACEBOOK_CLIENT_ID +
+                                "&redirect_uri=" + java.net.URLEncoder.encode(FACEBOOK_REDIRECT_URI, java.nio.charset.StandardCharsets.UTF_8) +
+                                "&client_secret=" + FACEBOOK_CLIENT_SECRET +
+                                "&code=" + java.net.URLEncoder.encode(code, java.nio.charset.StandardCharsets.UTF_8));
+                String accessToken = SimpleJson.getString(tokenJson, "access_token");
+                if (accessToken != null) {
+                    String userJson = HttpUtil.get(
+                            "https://graph.facebook.com/me?fields=email&access_token=" +
+                                    java.net.URLEncoder.encode(accessToken, java.nio.charset.StandardCharsets.UTF_8));
+                    email = SimpleJson.getString(userJson, "email");
+                }
+            }
+            } catch (IOException e) {
+            resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "SSO request failed");
+            return;
+        }
+
+        if (email == null || email.isBlank()) {
+            resp.sendError(HttpServletResponse.SC_BAD_REQUEST, "Unable to retrieve user info");
+            return;
+        }
+
+        UserDAO.createSsoUser(email, provider);
+        String token = JwtUtil.generateToken(email);
+        resp.setContentType("application/json;charset=UTF-8");
+        try (var out = resp.getWriter()) {
+            out.print(SimpleJson.toJson(Map.of("token", token)));
+        }
+    }
+}

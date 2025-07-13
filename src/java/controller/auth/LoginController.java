@@ -19,11 +19,7 @@ import java.util.Map;
 public class LoginController extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        if ("/login".equals(req.getServletPath())) {
-            req.getRequestDispatcher("/jsp/user/login.jsp").forward(req, resp);
-        } else {
-            resp.sendError(HttpServletResponse.SC_NOT_FOUND);
-        }
+        req.getRequestDispatcher("/jsp/user/login.jsp").forward(req, resp);
     }
 
     @Override

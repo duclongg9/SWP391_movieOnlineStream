@@ -38,7 +38,8 @@
         <property file="nbproject/private/private.properties"/>
     </target>
     <target name="-pre-init-libraries">
-        <property location="D:\SETUP\Libary\nblibraries.properties" name="libraries.path"/>
+        <!-- Use project-local libraries configuration -->
+        <property location="${basedir}/nbproject/nblibraries.properties" name="libraries.path"/>
         <dirname file="${libraries.path}" property="libraries.dir.nativedirsep"/>
         <pathconvert dirsep="/" property="libraries.dir">
             <path path="${libraries.dir.nativedirsep}"/>
