@@ -3,56 +3,14 @@
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
-            <file>file:/D:/DH_FPT/Ky_7/SWD391_/Project/filmlane/SWP391_movieOnlineStream/SWP391_movieOnlineStream/src/java/controller/auth/AuthController.java</file>
             <file>file:/D:/DH_FPT/Ky_7/SWD391_/Project/filmlane/SWP391_movieOnlineStream/SWP391_movieOnlineStream/src/java/controller/auth/LogoutController.java</file>
-            <file>file:/D:/DH_FPT/Ky_7/SWD391_/Project/filmlane/SWP391_movieOnlineStream/SWP391_movieOnlineStream/web/jsp/template/upcoming.jsp</file>
-            <file>file:/D:/DH_FPT/Ky_7/SWD391_/Project/filmlane/SWP391_movieOnlineStream/SWP391_movieOnlineStream/src/java/controller/point/PointController.java</file>
-            <file>file:/D:/DH_FPT/Ky_7/SWD391_/Project/filmlane/SWP391_movieOnlineStream/SWP391_movieOnlineStream/src/java/dao/purchase/PurchaseDAO.java</file>
-            <file>file:/D:/DH_FPT/Ky_7/SWD391_/Project/filmlane/SWP391_movieOnlineStream/SWP391_movieOnlineStream/src/java/model/Movie.java</file>
-            <file>file:/D:/DH_FPT/Ky_7/SWD391_/Project/filmlane/SWP391_movieOnlineStream/SWP391_movieOnlineStream/web/jsp/user/register.jsp</file>
-            <file>file:/D:/DH_FPT/Ky_7/SWD391_/Project/filmlane/SWP391_movieOnlineStream/SWP391_movieOnlineStream/web/jsp/template/footer.jsp</file>
-            <file>file:/D:/DH_FPT/Ky_7/SWD391_/Project/filmlane/SWP391_movieOnlineStream/SWP391_movieOnlineStream/web/jsp/template/cta.jsp</file>
-            <file>file:/D:/DH_FPT/Ky_7/SWD391_/Project/filmlane/SWP391_movieOnlineStream/SWP391_movieOnlineStream/src/java/controller/payment/PaymentController.java</file>
-            <file>file:/D:/DH_FPT/Ky_7/SWD391_/Project/filmlane/SWP391_movieOnlineStream/SWP391_movieOnlineStream/src/java/model/Package.java</file>
-            <file>file:/D:/DH_FPT/Ky_7/SWD391_/Project/filmlane/SWP391_movieOnlineStream/SWP391_movieOnlineStream/src/java/dao/payment/TransactionDAO.java</file>
-            <file>file:/D:/DH_FPT/Ky_7/SWD391_/Project/filmlane/SWP391_movieOnlineStream/SWP391_movieOnlineStream/src/java/controller/admin/AdminLoginController.java</file>
+            <file>file:/D:/DH_FPT/Ky_7/SWD391_/Project/filmlane/SWP391_movieOnlineStream/SWP391_movieOnlineStream/nbproject/project.properties</file>
+            <file>file:/D:/DH_FPT/Ky_7/SWD391_/Project/filmlane/SWP391_movieOnlineStream/SWP391_movieOnlineStream/src/java/controller/admin/UserAdminController.java</file>
+            <file>file:/D:/DH_FPT/Ky_7/SWD391_/Project/filmlane/SWP391_movieOnlineStream/SWP391_movieOnlineStream/src/java/controller/admin/PromotionAdminController.java</file>
             <file>file:/D:/DH_FPT/Ky_7/SWD391_/Project/filmlane/SWP391_movieOnlineStream/SWP391_movieOnlineStream/src/java/dao/user/UserDAO.java</file>
-            <file>file:/D:/DH_FPT/Ky_7/SWD391_/Project/filmlane/SWP391_movieOnlineStream/SWP391_movieOnlineStream/nbproject/build-impl.xml</file>
-            <file>file:/D:/DH_FPT/Ky_7/SWD391_/Project/filmlane/SWP391_movieOnlineStream/SWP391_movieOnlineStream/src/java/dao/watch/WatchDAO.java</file>
-            <file>file:/D:/DH_FPT/Ky_7/SWD391_/Project/filmlane/SWP391_movieOnlineStream/SWP391_movieOnlineStream/src/java/controller/purchase/MoviePurchaseController.java</file>
-            <file>file:/D:/DH_FPT/Ky_7/SWD391_/Project/filmlane/SWP391_movieOnlineStream/SWP391_movieOnlineStream/src/java/controller/purchase/HistoryController.java</file>
-            <file>file:/D:/DH_FPT/Ky_7/SWD391_/Project/filmlane/SWP391_movieOnlineStream/SWP391_movieOnlineStream/src/java/controller/auth/SsoController.java</file>
-            <file>file:/D:/DH_FPT/Ky_7/SWD391_/Project/filmlane/SWP391_movieOnlineStream/SWP391_movieOnlineStream/src/java/controller/admin/ReportController.java</file>
-            <file>file:/D:/DH_FPT/Ky_7/SWD391_/Project/filmlane/SWP391_movieOnlineStream/SWP391_movieOnlineStream/src/java/dao/pkg/PackageDAO.java</file>
-            <file>file:/D:/DH_FPT/Ky_7/SWD391_/Project/filmlane/SWP391_movieOnlineStream/SWP391_movieOnlineStream/src/java/controller/point/ConvertController.java</file>
-            <file>file:/D:/DH_FPT/Ky_7/SWD391_/Project/filmlane/SWP391_movieOnlineStream/SWP391_movieOnlineStream/src/java/model/User.java</file>
-            <file>file:/D:/DH_FPT/Ky_7/SWD391_/Project/filmlane/SWP391_movieOnlineStream/SWP391_movieOnlineStream/src/java/dao/report/ReportDAO.java</file>
-            <file>file:/D:/DH_FPT/Ky_7/SWD391_/Project/filmlane/SWP391_movieOnlineStream/SWP391_movieOnlineStream/src/java/util/PasswordUtil.java</file>
-            <file>file:/D:/DH_FPT/Ky_7/SWD391_/Project/filmlane/SWP391_movieOnlineStream/SWP391_movieOnlineStream/src/java/controller/movie/SearchController.java</file>
-            <file>file:/D:/DH_FPT/Ky_7/SWD391_/Project/filmlane/SWP391_movieOnlineStream/SWP391_movieOnlineStream/src/java/controller/admin/MovieAdminController.java</file>
-            <file>file:/D:/DH_FPT/Ky_7/SWD391_/Project/filmlane/SWP391_movieOnlineStream/SWP391_movieOnlineStream/src/java/controller/purchase/PurchaseController.java</file>
-            <file>file:/D:/DH_FPT/Ky_7/SWD391_/Project/filmlane/SWP391_movieOnlineStream/SWP391_movieOnlineStream/web/jsp/template/movie_detail.jsp</file>
-            <file>file:/D:/DH_FPT/Ky_7/SWD391_/Project/filmlane/SWP391_movieOnlineStream/SWP391_movieOnlineStream/src/java/controller/admin/PackageAdminController.java</file>
-            <file>file:/D:/DH_FPT/Ky_7/SWD391_/Project/filmlane/SWP391_movieOnlineStream/SWP391_movieOnlineStream/web/WEB-INF/web.xml</file>
-            <file>file:/D:/DH_FPT/Ky_7/SWD391_/Project/filmlane/SWP391_movieOnlineStream/SWP391_movieOnlineStream/src/java/model/Purchase.java</file>
-            <file>file:/D:/DH_FPT/Ky_7/SWD391_/Project/filmlane/SWP391_movieOnlineStream/SWP391_movieOnlineStream/web/jsp/template/header.jsp</file>
-            <file>file:/D:/DH_FPT/Ky_7/SWD391_/Project/filmlane/SWP391_movieOnlineStream/SWP391_movieOnlineStream/src/java/dao/connect/DBConnection.java</file>
-            <file>file:/D:/DH_FPT/Ky_7/SWD391_/Project/filmlane/SWP391_movieOnlineStream/SWP391_movieOnlineStream/web/jsp/user/history.jsp</file>
-            <file>file:/D:/DH_FPT/Ky_7/SWD391_/Project/filmlane/SWP391_movieOnlineStream/SWP391_movieOnlineStream/src/java/controller/payment/PaymentCallbackController.java</file>
-            <file>file:/D:/DH_FPT/Ky_7/SWD391_/Project/filmlane/SWP391_movieOnlineStream/SWP391_movieOnlineStream/src/java/util/JwtUtil.java</file>
-            <file>file:/D:/DH_FPT/Ky_7/SWD391_/Project/filmlane/SWP391_movieOnlineStream/SWP391_movieOnlineStream/web/jsp/template/top_rated.jsp</file>
-            <file>file:/D:/DH_FPT/Ky_7/SWD391_/Project/filmlane/SWP391_movieOnlineStream/SWP391_movieOnlineStream/src/java/dao/movie/MovieDAO.java</file>
-            <file>file:/D:/DH_FPT/Ky_7/SWD391_/Project/filmlane/SWP391_movieOnlineStream/SWP391_movieOnlineStream/src/java/controller/movie/MovieDetailController.java</file>
-            <file>file:/D:/DH_FPT/Ky_7/SWD391_/Project/filmlane/SWP391_movieOnlineStream/SWP391_movieOnlineStream/web/index.jsp</file>
-            <file>file:/D:/DH_FPT/Ky_7/SWD391_/Project/filmlane/SWP391_movieOnlineStream/SWP391_movieOnlineStream/web/jsp/template/hero.jsp</file>
-            <file>file:/D:/DH_FPT/Ky_7/SWD391_/Project/filmlane/SWP391_movieOnlineStream/SWP391_movieOnlineStream/src/java/controller/stream/StreamController.java</file>
-            <file>file:/D:/DH_FPT/Ky_7/SWD391_/Project/filmlane/SWP391_movieOnlineStream/SWP391_movieOnlineStream/web/jsp/template/service.jsp</file>
-            <file>file:/D:/DH_FPT/Ky_7/SWD391_/Project/filmlane/SWP391_movieOnlineStream/SWP391_movieOnlineStream/web/jsp/user/login.jsp</file>
             <file>file:/D:/DH_FPT/Ky_7/SWD391_/Project/filmlane/SWP391_movieOnlineStream/SWP391_movieOnlineStream/src/java/controller/user/UserController.java</file>
-            <file>file:/D:/DH_FPT/Ky_7/SWD391_/Project/filmlane/SWP391_movieOnlineStream/SWP391_movieOnlineStream/web/assets/css/style.css</file>
-            <file>file:/D:/DH_FPT/Ky_7/SWD391_/Project/filmlane/SWP391_movieOnlineStream/SWP391_movieOnlineStream/src/java/controller/movie/MovieController.java</file>
-            <file>file:/D:/DH_FPT/Ky_7/SWD391_/Project/filmlane/SWP391_movieOnlineStream/SWP391_movieOnlineStream/web/jsp/template/tv_series.jsp</file>
-            <file>file:/D:/DH_FPT/Ky_7/SWD391_/Project/filmlane/SWP391_movieOnlineStream/SWP391_movieOnlineStream/web/jsp/user/profile.jsp</file>
+            <file>file:/D:/DH_FPT/Ky_7/SWD391_/Project/filmlane/SWP391_movieOnlineStream/SWP391_movieOnlineStream/src/java/controller/auth/AuthController.java</file>
+            <file>file:/D:/DH_FPT/Ky_7/SWD391_/Project/filmlane/SWP391_movieOnlineStream/SWP391_movieOnlineStream/src/java/util/SimpleJson.java</file>
         </group>
     </open-files>
 </project-private>

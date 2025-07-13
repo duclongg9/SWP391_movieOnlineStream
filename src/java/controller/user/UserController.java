@@ -1,6 +1,6 @@
  package controller.user;
 
-import com.google.gson.Gson;
+
 import dao.user.UserDAO;
 import model.User;
 import util.JwtUtil;
@@ -125,7 +125,7 @@ public class UserController extends HttpServlet {
 
     private void sendJsonResponse(HttpServletResponse resp, Map<String, Object> data) throws IOException {
         try (var out = resp.getWriter()) {
-            out.print(new Gson().toJson(data));
+            out.print(util.SimpleJson.toJson(data));
         }
     }
 }

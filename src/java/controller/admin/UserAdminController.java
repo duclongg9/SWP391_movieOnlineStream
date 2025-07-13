@@ -4,7 +4,7 @@ package controller.admin;
 import dao.user.UserDAO;
 import model.User;
 import util.JwtUtil;
-import com.google.gson.Gson;
+
 
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -51,7 +51,7 @@ public class UserAdminController extends HttpServlet {
         List<User> list = UserDAO.findAll();
         resp.setContentType("application/json;charset=UTF-8");
         PrintWriter out = resp.getWriter();
-        out.write(new Gson().toJson(list));
+        out.write(util.SimpleJson.usersToJson(list));
     }
 
     protected void doPatch(HttpServletRequest req, HttpServletResponse resp) throws IOException {

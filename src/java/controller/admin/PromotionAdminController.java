@@ -5,7 +5,7 @@ import dao.user.UserDAO;
 import model.Promotion;
 import model.User;
 import util.JwtUtil;
-import com.google.gson.Gson;
+import util.SimpleJson;
 
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -64,7 +64,7 @@ public class PromotionAdminController extends HttpServlet {
         }
         resp.setContentType("application/json;charset=UTF-8");
         PrintWriter out = resp.getWriter();
-        out.write(new Gson().toJson(arr));
+        out.write(SimpleJson.listToJson(arr));
     }
 
     @Override
