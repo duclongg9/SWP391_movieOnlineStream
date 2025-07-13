@@ -39,7 +39,11 @@ public class UserDAO {
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, email);
             ps.setString(2, provider);
-            return ps.executeUpdate() == 1;
+            ps.executeUpdate();
+            return true;
+        } catch (java.sql.SQLIntegrityConstraintViolationException dup) {
+            // User already exists, treat as success
+            return true;
         } catch (SQLException e) {
             e.printStackTrace();
             return false;

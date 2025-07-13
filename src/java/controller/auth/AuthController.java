@@ -154,7 +154,7 @@ public class AuthController extends HttpServlet {
         params.put("grant_type", "authorization_code");
 
         String tokenResponse = sendPostRequest(tokenUrl, params);
-        String accessToken = util.SimpleJson.getString(tokenResponse, "access_token");
+        String accessToken = parseAccessToken(tokenResponse);
 
         if (accessToken == null) {
             resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
@@ -178,11 +178,15 @@ public class AuthController extends HttpServlet {
         if (user == null) {
             boolean created = UserDAO.createSsoUser(email, "google");
             if (!created) {
-                resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-                sendJsonResponse(resp, Map.of("error", "Failed to create user"));
-                return;
+                user = UserDAO.findByEmail(email);
+                if (user == null) {
+                    resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+                    sendJsonResponse(resp, Map.of("error", "Failed to create user"));
+                    return;
+                }
+            } else {
+                user = UserDAO.findByEmail(email);
             }
-            user = UserDAO.findByEmail(email);
         }
 
         String token = JwtUtil.generateToken(email);
@@ -225,7 +229,8 @@ public class AuthController extends HttpServlet {
                 "&code=" + code;
 
         String tokenResponse = sendGetRequest(tokenUrl, null);
-        String accessToken = util.SimpleJson.getString(tokenResponse, "access_token");
+        String accessToken = parseAccessToken(tokenResponse);
+
 
 
         if (accessToken == null) {
@@ -250,11 +255,15 @@ public class AuthController extends HttpServlet {
         if (user == null) {
             boolean created = UserDAO.createSsoUser(email, "facebook");
             if (!created) {
-                resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-                sendJsonResponse(resp, Map.of("error", "Failed to create user"));
-                return;
+                user = UserDAO.findByEmail(email);
+                if (user == null) {
+                    resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+                    sendJsonResponse(resp, Map.of("error", "Failed to create user"));
+                    return;
+                }
+            } else {
+                user = UserDAO.findByEmail(email);
             }
-            user = UserDAO.findByEmail(email);
         }
 
         String token = JwtUtil.generateToken(email);
@@ -266,6 +275,8 @@ public class AuthController extends HttpServlet {
         HttpURLConnection conn = (HttpURLConnection) url.openConnection();
         conn.setRequestMethod("POST");
         conn.setDoOutput(true);
+        conn.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
+        conn.setRequestProperty("Accept", "application/json");
 
         StringBuilder postData = new StringBuilder();
         for (Map.Entry<String, String> param : params.entrySet()) {
@@ -292,6 +303,38 @@ public class AuthController extends HttpServlet {
 
         return readResponse(conn);
     }
+    
+    /**
+     * Extract access or id token from OAuth2 response.
+     * Providers may return JSON or URL encoded strings.
+     */
+    private String parseAccessToken(String body) {
+        // Try JSON first
+        String token = util.SimpleJson.getString(body, "access_token");
+        if (token == null) {
+            token = util.SimpleJson.getString(body, "id_token");
+        }
+        
+        // If JSON parsing failed, check for query-string style
+        if (token == null && body != null) {
+            for (String part : body.split("&")) {
+                int eq = part.indexOf('=');
+                if (eq > 0) {
+                    String key = part.substring(0, eq);
+                    String value = part.substring(eq + 1);
+                    if ("access_token".equals(key) || "id_token".equals(key)) {
+                        token = java.net.URLDecoder.decode(value, java.nio.charset.StandardCharsets.UTF_8);
+                        break;
+                    }
+                }
+            }
+        }
+
+
+        return token;
+    }
+
+
 
     private String generateState(HttpServletRequest req) {
         String state = java.util.UUID.randomUUID().toString();

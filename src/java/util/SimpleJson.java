@@ -64,14 +64,15 @@ public class SimpleJson {
     }
 
     public static String getString(String json, String key) {
-        String pattern = "\"" + key.replace("\"", "\\\"") + "\"\s*:\s*\"";
-        int idx = json.indexOf(pattern);
-        if (idx == -1) return null;
-        idx += pattern.length();
-        int end = json.indexOf('"', idx);
-        if (end == -1) return null;
-        return json.substring(idx, end);
+        if (json == null || key == null) return null;
+        String pattern = "\"" + java.util.regex.Pattern.quote(key) + "\"\\s*:\\s*\"([^\"]*)\"";
+        java.util.regex.Matcher m = java.util.regex.Pattern.compile(pattern).matcher(json);
+        if (m.find()) {
+            return m.group(1);
+        }
+        return null;
     }
+    
 
     private static String escape(String s) {
         return s.replace("\\", "\\\\").replace("\"", "\\\"");
