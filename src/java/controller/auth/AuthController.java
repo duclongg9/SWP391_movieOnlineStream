@@ -5,6 +5,7 @@ import dao.user.UserDAO;
 import model.User;
 import util.JwtUtil;
 import util.PasswordUtil;
+import com.google.gson.Gson;
 
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -402,7 +403,7 @@ public class AuthController extends HttpServlet {
 
     private void sendJsonResponse(HttpServletResponse resp, Map<String, Object> data) throws IOException {
         try (var out = resp.getWriter()) {
-            out.print(util.SimpleJson.toJson(data));
+            out.print(new Gson().toJson(data));
         }
     }
 }
