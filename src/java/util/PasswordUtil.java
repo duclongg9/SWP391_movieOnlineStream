@@ -18,4 +18,8 @@ public class PasswordUtil {
             throw new RuntimeException(e);
         }
     }
+    public static void main(String[] args) {
+        String pw = "admin";
+        System.out.println(hash(pw));
+    }
 }
