@@ -7,6 +7,7 @@
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <%
     String ctx = request.getContextPath();
+    model.User sessionUser = (model.User) session.getAttribute("loggedInUser");
 %>
 <header class="header" data-header>
     <div class="container">
@@ -36,13 +37,15 @@
           </select>
         </div>
 
-        <a href="<%=ctx%>/api/auth/login" class="btn btn-primary" id="loginLink">Sign in</a>
-        <a href="<%=ctx%>/api/auth/register" class="btn" id="registerLink">Register</a>
-        <a href="<%=ctx%>/user/profile" class="btn" id="profileLink" style="display:none;">Profile</a>
-        <a href="<%=ctx%>/history" class="btn" id="historyLink" style="display:none;">History</a>
-        <a href="<%=ctx%>/admin/users" class="btn" id="adminLink" style="display:none;">Admin</a>
-        <a href="#" class="btn" id="logoutLink" style="display:none;">Logout</a>
-        <span id="userEmail" style="color:#fff; margin-left:10px; display:none;"></span>
+        <a href="<%=ctx%>/api/auth/login" class="btn btn-primary" id="loginLink" <%= (sessionUser!=null ? "style=\"display:none;\"" : "") %>>Sign in</a>
+        <a href="<%=ctx%>/api/auth/register" class="btn" id="registerLink" <%= (sessionUser!=null ? "style=\"display:none;\"" : "") %>>Register</a>
+        <a href="<%=ctx%>/user/profile" class="btn" id="profileLink" <%= (sessionUser==null ? "style=\"display:none;\"" : "") %>>Profile</a>
+        <a href="<%=ctx%>/history" class="btn" id="historyLink" <%= (sessionUser==null ? "style=\"display:none;\"" : "") %>>History</a>
+        <a href="<%=ctx%>/admin/users" class="btn" id="adminLink" <%= (sessionUser!=null && \"admin\".equals(sessionUser.getRole()) ? "" : "style=\"display:none;\"") %>>Admin</a>
+        <a href="<%=ctx%>/api/auth/logout" class="btn" id="logoutLink" <%= (sessionUser==null ? "style=\"display:none;\"" : "") %>>Logout</a>
+        <span id="userEmail" style="color:#fff; margin-left:10px; <%= (sessionUser==null ? "display:none;" : "") %>">
+            <%= sessionUser!=null ? sessionUser.getEmail() : "" %>
+        </span>
 
       </div>
 
@@ -126,49 +129,3 @@
 
     </div>
   </header>
-<script>
-    (function() {
-      const token = localStorage.getItem('token');
-      const base = '<%=ctx%>';
-      if (token) {
-        try {
-          const payload = JSON.parse(atob(token.split('.')[1]));
-          const emailSpan = document.getElementById('userEmail');
-          const loginLink = document.getElementById('loginLink');
-          const regLink = document.getElementById('registerLink');
-          const profileLink = document.getElementById('profileLink');
-          const historyLink = document.getElementById('historyLink');
-          const logoutLink = document.getElementById('logoutLink');
-          const adminLink = document.getElementById('adminLink');
-          if (payload.sub) {
-            emailSpan.textContent = payload.sub;
-            emailSpan.style.display = 'inline-block';
-          }
-          if (loginLink) loginLink.style.display = 'none';
-          if (regLink) regLink.style.display = 'none';
-          if (profileLink) profileLink.style.display = 'inline-block';
-          if (historyLink) historyLink.style.display = 'inline-block';
-          if (logoutLink) logoutLink.style.display = 'inline-block';
-          if (adminLink && payload.sub === 'admin@example.com') {
-            adminLink.style.display = 'inline-block';
-          }
-        } catch (err) {
-          console.error('Invalid token:', err);
-          localStorage.removeItem('token');
-        }
-      }
-      const logoutLink = document.getElementById('logoutLink');
-      if (logoutLink) {
-        logoutLink.addEventListener('click', async function(e) {
-          e.preventDefault();
-          try {
-            await fetch(base + '/api/auth/logout', { method: 'POST' });
-          } catch (err) {
-            console.error('Logout request failed:', err);
-          }
-          localStorage.removeItem('token');
-          window.location.href = base + '/index.jsp';
-        });
-      }
-    })();
-  </script>

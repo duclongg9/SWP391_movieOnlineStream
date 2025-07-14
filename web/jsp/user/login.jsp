@@ -26,15 +26,15 @@
       <section class="auth-section">
         <div class="container">
           <h2 class="h2 section-title">Login</h2>
-          <form id="loginForm" class="auth-form">
+          <form id="loginForm" class="auth-form" method="post" action="<%=request.getContextPath()%>/api/auth/login">
             <input type="email" name="email" placeholder="Email" required />
             <input type="password" name="password" placeholder="Password" required />
             <button type="submit" class="btn btn-primary">Sign in</button>
           </form>
+          <p style="color:red;">${msg}</p>
           <p><a href="<%=request.getContextPath()%>/api/auth/sso/google">Login with Google</a></p>
           <p><a href="<%=request.getContextPath()%>/api/auth/sso/facebook">Login with Facebook</a></p>
           <p class="form-switch">Don't have an account? <a href="<%=request.getContextPath()%>/api/auth/register">Register</a></p>
-          <div id="errorMessage" class="error-message" style="color: red; display: none;"></div>
         </div>
       </section>
     </article>
@@ -47,65 +47,5 @@
   <script src="<%=request.getContextPath()%>/assets/js/script.js"></script>
   <script type="module" src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.esm.js"></script>
   <script nomodule src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.js"></script>
-  <script>
-    // Existing script remains the same
-    const base = '<%=request.getContextPath()%>';
-    const errorDiv = document.getElementById('errorMessage');
-
-    function showError(message) {
-      errorDiv.textContent = message;
-      errorDiv.style.display = 'block';
-    }
-
-    function hideError() {
-      errorDiv.style.display = 'none';
-    }
-
-    document.getElementById('loginForm').addEventListener('submit', async function(e) {
-      e.preventDefault();
-      hideError();
-      const form = e.target;
-      const email = form.email.value.trim();
-      const password = form.password.value.trim();
-
-      if (!email || !password) {
-        showError('Please enter email and password.');
-        return;
-      }
-
-      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-        showError('Please enter a valid email address.');
-        return;
-      }
-
-      const data = new URLSearchParams(new FormData(form));
-      try {
-        const res = await fetch(base + '/api/auth/login', { method: 'POST', body: data });
-        const text = await res.text();
-        if (res.ok) {
-          try {
-            const obj = JSON.parse(text);
-            if (obj.token) {
-              localStorage.setItem('token', obj.token);
-              window.location.href = base + '/index.jsp';
-            } else {
-              showError('Login successful, but no token received.');
-            }
-          } catch (err) {
-            showError('Unexpected response format.');
-          }
-        } else {
-          try {
-            const obj = JSON.parse(text);
-            showError(obj.error || 'Login failed. Please check your credentials.');
-          } catch (err) {
-            showError(text || 'An error occurred during login.');
-          }
-        }
-      } catch (err) {
-        showError('Network error. Please try again later.');
-      }
-    });
-  </script>
 </body>
 </html>

@@ -8,23 +8,39 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 import java.io.IOException;
-import java.util.Map;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpSession;
 
 
 @WebServlet("/api/auth/logout")
 public class LogoutController extends HttpServlet {
 
-
+    @Override
+    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        process(req, resp);
+    }
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        resp.setContentType("application/json;charset=UTF-8");
-        sendJsonResponse(resp, Map.of("status", "logged out"));
+        process(req, resp);
     }
 
-    private void sendJsonResponse(HttpServletResponse resp, Map<String, Object> data) throws IOException {
-        try (var out = resp.getWriter()) {
-            out.print(util.SimpleJson.toJson(data));
+    private void process(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+        HttpSession session = req.getSession(false);
+        if (session != null) {
+            session.invalidate();
         }
+
+        Cookie emailCookie = new Cookie("email", "");
+        emailCookie.setMaxAge(0);
+        emailCookie.setPath(req.getContextPath().isEmpty() ? "/" : req.getContextPath());
+        resp.addCookie(emailCookie);
+
+        Cookie userCookie = new Cookie("username", "");
+        userCookie.setMaxAge(0);
+        userCookie.setPath(req.getContextPath().isEmpty() ? "/" : req.getContextPath());
+        resp.addCookie(userCookie);
+
+        resp.sendRedirect(req.getContextPath() + "/index.jsp");
     }
 }
