@@ -33,7 +33,7 @@
           </form>
           <p><a href="<%=request.getContextPath()%>/api/auth/sso/google">Login with Google</a></p>
           <p><a href="<%=request.getContextPath()%>/api/auth/sso/facebook">Login with Facebook</a></p>
-          <p class="form-switch">Don't have an account? <a href="<%=request.getContextPath()%>/api/auth/register">Register</a></p>
+          <!--<p class="form-switch">Don't have an account? <a href="<%=request.getContextPath()%>/api/auth/register">Register</a></p>-->
           <div id="errorMessage" class="error-message" style="color: red; display: none;"></div>
         </div>
       </section>

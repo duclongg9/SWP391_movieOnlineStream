@@ -49,6 +49,7 @@ public class SsoCallbackController extends HttpServlet {
         String provider = req.getServletPath().contains("google") ? "google" : "facebook";
         req.getSession().removeAttribute(OAUTH_STATE);
         String email = null;
+        String name = null;
         try {
             if ("google".equals(provider)) {
                 String tokenJson = HttpUtil.postForm(
@@ -66,6 +67,7 @@ public class SsoCallbackController extends HttpServlet {
                             "https://www.googleapis.com/oauth2/v2/userinfo?access_token=" +
                                     java.net.URLEncoder.encode(accessToken, java.nio.charset.StandardCharsets.UTF_8));
                     email = SimpleJson.getString(userJson, "email");
+                    name = SimpleJson.getString(userJson, "name");
                 }
             } else {
                 String tokenJson = HttpUtil.get(
@@ -77,9 +79,10 @@ public class SsoCallbackController extends HttpServlet {
                 String accessToken = SimpleJson.getString(tokenJson, "access_token");
                 if (accessToken != null) {
                     String userJson = HttpUtil.get(
-                            "https://graph.facebook.com/me?fields=email&access_token=" +
+                            "https://graph.facebook.com/me?fields=email,name&access_token=" +
                                     java.net.URLEncoder.encode(accessToken, java.nio.charset.StandardCharsets.UTF_8));
                     email = SimpleJson.getString(userJson, "email");
+                    name = SimpleJson.getString(userJson, "name");
                 }
             }
             } catch (IOException e) {
@@ -92,7 +95,7 @@ public class SsoCallbackController extends HttpServlet {
             return;
         }
 
-        UserDAO.createSsoUser(email, provider);
+        UserDAO.createSsoUser(email, provider, name == null ? "" : name);
         String token = JwtUtil.generateToken(email);
         resp.setContentType("application/json;charset=UTF-8");
         try (var out = resp.getWriter()) {

@@ -37,7 +37,7 @@
         </div>
 
         <a href="<%=ctx%>/api/auth/login" class="btn btn-primary" id="loginLink">Sign in</a>
-        <a href="<%=ctx%>/api/auth/register" class="btn" id="registerLink">Register</a>
+<!--        <a href="<%=ctx%>/api/auth/register" class="btn" id="registerLink">Register</a>-->
         <a href="<%=ctx%>/user/profile" class="btn" id="profileLink" style="display:none;">Profile</a>
         <a href="<%=ctx%>/history" class="btn" id="historyLink" style="display:none;">History</a>
         <a href="<%=ctx%>/admin/users" class="btn" id="adminLink" style="display:none;">Admin</a>
@@ -135,7 +135,7 @@
           const payload = JSON.parse(atob(token.split('.')[1]));
           const emailSpan = document.getElementById('userEmail');
           const loginLink = document.getElementById('loginLink');
-          const regLink = document.getElementById('registerLink');
+//          const regLink = document.getElementById('registerLink');
           const profileLink = document.getElementById('profileLink');
           const historyLink = document.getElementById('historyLink');
           const logoutLink = document.getElementById('logoutLink');
@@ -145,7 +145,7 @@
             emailSpan.style.display = 'inline-block';
           }
           if (loginLink) loginLink.style.display = 'none';
-          if (regLink) regLink.style.display = 'none';
+//          if (regLink) regLink.style.display = 'none';
           if (profileLink) profileLink.style.display = 'inline-block';
           if (historyLink) historyLink.style.display = 'inline-block';
           if (logoutLink) logoutLink.style.display = 'inline-block';
