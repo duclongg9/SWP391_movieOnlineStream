@@ -2,6 +2,16 @@
 <project-private xmlns="http://www.netbeans.org/ns/project-private/1">
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
-        <group/>
+        <group>
+            <file>file:/E:/SWD/SWP391_movieOnlineStream/web/index.jsp</file>
+            <file>file:/E:/SWD/SWP391_movieOnlineStream/web/jsp/template/top_rated.jsp</file>
+            <file>file:/E:/SWD/SWP391_movieOnlineStream/web/jsp/template/movie_detail.jsp</file>
+            <file>file:/E:/SWD/SWP391_movieOnlineStream/src/java/controller/auth/RegisterController.java</file>
+            <file>file:/E:/SWD/SWP391_movieOnlineStream/src/java/controller/auth/SsoCallbackController.java</file>
+            <file>file:/E:/SWD/SWP391_movieOnlineStream/src/java/dao/user/UserDAO.java</file>
+            <file>file:/E:/SWD/SWP391_movieOnlineStream/web/jsp/template/header.jsp</file>
+            <file>file:/E:/SWD/SWP391_movieOnlineStream/web/jsp/user/login.jsp</file>
+            <file>file:/E:/SWD/SWP391_movieOnlineStream/web/jsp/user/register.jsp</file>
+        </group>
     </open-files>
 </project-private>
