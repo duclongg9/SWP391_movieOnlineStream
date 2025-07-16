@@ -58,17 +58,18 @@ public class SsoController extends HttpServlet {
     }
 
     private void handleFacebookRedirect(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-        if (FACEBOOK_CLIENT_ID.isEmpty()) {
-            resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Facebook SSO not configured");
-            return;
-        }
-        String state = generateState(req);
-        String url = "https://www.facebook.com/dialog/oauth" +
-                "?client_id=" + FACEBOOK_CLIENT_ID +
-                "&redirect_uri=" + URLEncoder.encode(FACEBOOK_REDIRECT_URI, StandardCharsets.UTF_8) +
-                "&state=" + URLEncoder.encode(state, StandardCharsets.UTF_8);
-        resp.sendRedirect(url);
+    if (FACEBOOK_CLIENT_ID.isEmpty()) {
+        resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Facebook SSO not configured");
+        return;
     }
+    String state = generateState(req);
+    String url = "https://www.facebook.com/dialog/oauth" +
+            "?client_id=" + FACEBOOK_CLIENT_ID +
+            "&redirect_uri=" + URLEncoder.encode(FACEBOOK_REDIRECT_URI, StandardCharsets.UTF_8) +
+            "&state=" + URLEncoder.encode(state, StandardCharsets.UTF_8) +
+            "&scope=email";  // Thêm scope=email để lấy email
+    resp.sendRedirect(url);
+}
 
     private String generateState(HttpServletRequest req) {
         String state = java.util.UUID.randomUUID().toString();
