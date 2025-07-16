@@ -1601,7 +1601,30 @@ body.active { overflow: hidden; }
  *-----------------------------------*/
 
 .auth-section {
-  padding: var(--section-padding) 0;
+  background: url("../images/hero-bg.jpg") no-repeat center/cover;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--section-padding) 15px;
+}
+
+.auth-container {
+  background: var(--gunmetal-2);
+  padding: 40px 30px;
+  border-radius: 8px;
+  box-shadow: 0 4px 15px hsla(0, 0%, 0%, 0.3);
+  max-width: 450px;
+  width: 100%;
+  text-align: center;
+}
+
+.auth-title {
+  color: var(--citrine);
+  font-size: var(--fs-4);
+  margin-bottom: 30px;
+  text-transform: uppercase;
+  letter-spacing: 2px;
 }
 
 .auth-form {
@@ -1613,10 +1636,26 @@ body.active { overflow: hidden; }
 }
 
 .auth-form input {
-  background: var(--gunmetal-2);
-  color: var(--white);
-  padding: 10px 15px;
-  border-radius: 4px;
+  background: var(--raisin-black);
+  color: var(--gainsboro);
+  padding: 15px 20px;
+  border-radius: 50px;
+  margin-bottom: 20px;
+  font-size: var(--fs-9);
+  transition: var(--transition-1);
+}
+
+.auth-form input:focus {
+  outline: none;
+  box-shadow: 0 0 5px var(--citrine);
+}
+
+.auth-form .btn-primary {
+  width: 100%;
+  justify-content: center;
+  font-size: var(--fs-9);
+  padding: 15px;
+  margin-bottom: 20px;
 }
 
 .form-switch {
@@ -1625,7 +1664,45 @@ body.active { overflow: hidden; }
   text-align: center;
 }
 
-.auth-form .btn {
-  width: 100%;
+.sso-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  margin-top: 20px;
+}
+
+.sso-btn {
+  display: flex;
+  align-items: center;
   justify-content: center;
+  gap: 10px;
+  background: var(--rich-black-fogra-29);
+  color: var(--white);
+  padding: 15px;
+  border-radius: 50px;
+  border: 2px solid var(--citrine);
+  font-size: var(--fs-9);
+  font-weight: var(--fw-500);
+  text-transform: uppercase;
+  transition: var(--transition-1);
+}
+
+.sso-btn:hover {
+  background: var(--citrine);
+  color: var(--xiketic);
+}
+
+.sso-btn ion-icon {
+  font-size: 20px;
+}
+
+.note {
+  color: var(--light-gray);
+  font-size: var(--fs-11);
+  margin-bottom: 20px;
+}
+
+#errorMessage {
+  margin-top: 10px;
+  font-size: var(--fs-11);
 }

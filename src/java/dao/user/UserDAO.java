@@ -30,28 +30,26 @@ public class UserDAO {
     }
 
     public static boolean createSsoUser(String email, String provider, String fullName) {
-        String sql = "INSERT INTO users(email, full_name, sso_provider) VALUES(?, ?, ?)";
-        Connection conn = DBConnection.getConnection();
-        if (conn == null) {
-            System.err.println("DB connection is null when creating sso user");
-            return false;
-        }
-        try (PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setString(1, email);
-            ps.setString(2, fullName);
-            ps.setString(3, provider);
-            ps.executeUpdate();
-            return true;
-        } catch (java.sql.SQLIntegrityConstraintViolationException dup) {
-            // User already exists, treat as success
-            return true;
-        } catch (SQLException e) {
-            e.printStackTrace();
-            return false;
-        } finally {
-            DBConnection.closeConnection(conn);
-        }
+    String sql = "INSERT INTO users(email, full_name, sso_provider, role) VALUES(?, ?, ?, ?) ON DUPLICATE KEY UPDATE full_name=VALUES(full_name), sso_provider=VALUES(sso_provider)";  // Sử dụng ON DUPLICATE để cập nhật nếu tồn tại (giả sử email unique)
+    Connection conn = DBConnection.getConnection();
+    if (conn == null) {
+        System.err.println("DB connection is null when creating sso user");
+        return false;
     }
+    try (PreparedStatement ps = conn.prepareStatement(sql)) {
+        ps.setString(1, email);
+        ps.setString(2, fullName);
+        ps.setString(3, provider);
+        ps.setString(4, "user");  // Thêm role='user' cho SSO user
+        ps.executeUpdate();
+        return true;
+    } catch (SQLException e) {
+        e.printStackTrace();
+        return false;
+    } finally {
+        DBConnection.closeConnection(conn);
+    }
+   }
 
     
     public static User findByEmail(String email) {

@@ -10,9 +10,7 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
-
 import java.io.IOException;
-
 import java.util.Map;
 
 @WebServlet(urlPatterns = {"/api/auth/login", "/login"})
@@ -34,13 +32,20 @@ public class LoginController extends HttpServlet {
             return;
         }
         
-        
         User user = UserDAO.validateUser(email, password);
         if (user == null) {
             resp.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             sendJson(resp, Map.of("error", "Invalid credentials"));
             return;
         }
+        
+        // Kiểm tra role chỉ cho admin
+        if (!"admin".equals(user.getRole())) {
+            resp.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            sendJson(resp, Map.of("error", "This login method is only for admins"));
+            return;
+        }
+        
         String token = JwtUtil.generateToken(email);
         sendJson(resp, Map.of("token", token));
     }
@@ -51,6 +56,3 @@ public class LoginController extends HttpServlet {
         }
     }
 }
-
-
-

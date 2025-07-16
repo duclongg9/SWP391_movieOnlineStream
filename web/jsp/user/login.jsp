@@ -24,15 +24,23 @@
   <main>
     <article>
       <section class="auth-section">
-        <div class="container">
-          <h2 class="h2 section-title">Login</h2>
+        <div class="auth-container">
+          <h2 class="auth-title">Login</h2>
+          <p class="note">Note: Email/Password login is only for Admins. Users please use Google or Facebook.</p>
           <form id="loginForm" class="auth-form">
             <input type="email" name="email" placeholder="Email" required />
             <input type="password" name="password" placeholder="Password" required />
-            <button type="submit" class="btn btn-primary">Sign in</button>
+            <button type="submit" class="btn btn-primary">Sign in (Admin Only)</button>
           </form>
-          <p><a href="<%=request.getContextPath()%>/api/auth/sso/google">Login with Google</a></p>
-          <p><a href="<%=request.getContextPath()%>/api/auth/sso/facebook">Login with Facebook</a></p>
+          <div class="sso-buttons" style="flex-direction: row; justify-content: center; gap: 20px;">
+            <a href="<%=request.getContextPath()%>/api/auth/sso/google" class="sso-btn" style="padding: 10px; width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center;" title="Login with Google">
+              <ion-icon name="logo-google" style="font-size: 30px;"></ion-icon>
+            </a>
+            <a href="<%=request.getContextPath()%>/api/auth/sso/facebook" class="sso-btn" style="padding: 10px; width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center;" title="Login with Facebook">
+              <ion-icon name="logo-facebook" style="font-size: 30px;"></ion-icon>
+            </a>
+          </div>
+          <p class="form-switch" style="margin-top: 20px;"><a href="<%=request.getContextPath()%>/index.jsp">Back to Home</a></p>
           <!--<p class="form-switch">Don't have an account? <a href="<%=request.getContextPath()%>/api/auth/register">Register</a></p>-->
           <div id="errorMessage" class="error-message" style="color: red; display: none;"></div>
         </div>
@@ -59,6 +67,13 @@
 
     function hideError() {
       errorDiv.style.display = 'none';
+    }
+
+    // Handle error from query parameter (e.g., from SSO callback errors)
+    const urlParams = new URLSearchParams(window.location.search);
+    const errorParam = urlParams.get('error');
+    if (errorParam) {
+      showError(decodeURIComponent(errorParam));
     }
 
     document.getElementById('loginForm').addEventListener('submit', async function(e) {

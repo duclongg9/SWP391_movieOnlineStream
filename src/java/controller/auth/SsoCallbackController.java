@@ -11,6 +11,7 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.Map;
 
 @WebServlet(urlPatterns = {
@@ -42,7 +43,7 @@ public class SsoCallbackController extends HttpServlet {
         String sessionState = (String) req.getSession().getAttribute(OAUTH_STATE);
 
         if (state == null || !state.equals(sessionState) || code == null || code.isBlank()) {
-            resp.sendError(HttpServletResponse.SC_BAD_REQUEST, "Invalid SSO callback");
+            renderErrorPage(resp, req.getContextPath(), "Invalid SSO callback");
             return;
         }
 
@@ -85,21 +86,39 @@ public class SsoCallbackController extends HttpServlet {
                     name = SimpleJson.getString(userJson, "name");
                 }
             }
-            } catch (IOException e) {
-            resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "SSO request failed");
+        } catch (IOException e) {
+            renderErrorPage(resp, req.getContextPath(), "SSO request failed");
             return;
         }
 
         if (email == null || email.isBlank()) {
-            resp.sendError(HttpServletResponse.SC_BAD_REQUEST, "Unable to retrieve user info");
+            renderErrorPage(resp, req.getContextPath(), "Unable to retrieve user info");
             return;
         }
 
         UserDAO.createSsoUser(email, provider, name == null ? "" : name);
         String token = JwtUtil.generateToken(email);
-        resp.setContentType("application/json;charset=UTF-8");
-        try (var out = resp.getWriter()) {
-            out.print(SimpleJson.toJson(Map.of("token", token)));
+
+        // Render một trang HTML đơn giản với script để lưu token vào localStorage và redirect
+        resp.setContentType("text/html;charset=UTF-8");
+        try (PrintWriter out = resp.getWriter()) {
+            out.println("<html><body>");
+            out.println("<script>");
+            out.println("localStorage.setItem('token', '" + token.replace("'", "\\'") + "');");  // Escape ký tự nháy đơn trong token
+            out.println("window.location.href = '" + req.getContextPath() + "/index.jsp';");
+            out.println("</script>");
+            out.println("</body></html>");
+        }
+    }
+
+    private void renderErrorPage(HttpServletResponse resp, String contextPath, String errorMessage) throws IOException {
+        resp.setContentType("text/html;charset=UTF-8");
+        try (PrintWriter out = resp.getWriter()) {
+            out.println("<html><body style='background: #1a1a1a; color: #fff; font-family: Poppins, sans-serif; text-align: center; padding: 50px;'>");
+            out.println("<h2 style='color: #ffcc00;'>Lỗi SSO</h2>");
+            out.println("<p>" + errorMessage + "</p>");
+            out.println("<button onclick=\"window.location.href='" + contextPath + "/index.jsp'\" style='background: #ffcc00; color: #000; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer;'>Quay về Trang chủ</button>");
+            out.println("</body></html>");
         }
     }
 }
