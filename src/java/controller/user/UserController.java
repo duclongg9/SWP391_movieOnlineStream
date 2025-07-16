@@ -1,5 +1,4 @@
- package controller.user;
-
+package controller.user;
 
 import dao.user.UserDAO;
 import model.User;

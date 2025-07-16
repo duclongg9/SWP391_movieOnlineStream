@@ -1,5 +1,6 @@
 package controller.admin;
 
+import dao.user.UserDAO;
 import dao.movie.MovieDAO;
 import model.Movie;
 import util.JwtUtil;
@@ -11,14 +12,28 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.List;
 
-@WebServlet(urlPatterns = {"/api/admin/movie", "/api/admin/movie/*"})
+@WebServlet(urlPatterns = {"/api/admin/movies", "/api/admin/movie/*", "/admin/movies"})
 public class MovieAdminController extends HttpServlet {
     private boolean isAdmin(HttpServletRequest req) {
         String token = req.getHeader("Authorization");
         if (token != null && token.startsWith("Bearer ")) token = token.substring(7);
         String email = JwtUtil.verifyToken(token);
-        return "admin@example.com".equals(email);
+        return UserDAO.isAdmin(email);
+    }
+
+    @Override
+    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        if ("/admin/movies".equals(req.getServletPath())) {
+            req.getRequestDispatcher("/jsp/admin/movies.jsp").forward(req, resp);
+            return;
+        }
+        if (!isAdmin(req)) { resp.setStatus(401); return; }
+        List<Movie> movies = MovieDAO.findAll();
+        resp.setContentType("application/json;charset=UTF-8");
+        PrintWriter out = resp.getWriter();
+        out.write(toJson(movies)); // Assume toJson method
     }
 
     @Override
@@ -30,7 +45,7 @@ public class MovieAdminController extends HttpServlet {
         m.setActor(req.getParameter("actor"));
         m.setVideoPath(req.getParameter("videoPath"));
         m.setDescription(req.getParameter("description"));
-        try { m.setPricePoint(Integer.parseInt(req.getParameter("price"))); } catch(Exception e){ m.setPricePoint(0); }
+        m.setPricePoint(Integer.parseInt(req.getParameter("price")));
         boolean ok = MovieDAO.create(m);
         resp.setContentType("application/json;charset=UTF-8");
         PrintWriter out = resp.getWriter();
@@ -51,7 +66,7 @@ public class MovieAdminController extends HttpServlet {
         m.setActor(req.getParameter("actor"));
         m.setVideoPath(req.getParameter("videoPath"));
         m.setDescription(req.getParameter("description"));
-        try { m.setPricePoint(Integer.parseInt(req.getParameter("price"))); } catch(Exception e){ m.setPricePoint(0); }
+        m.setPricePoint(Integer.parseInt(req.getParameter("price")));
         boolean ok = MovieDAO.update(m);
         resp.setContentType("application/json;charset=UTF-8");
         PrintWriter out = resp.getWriter();

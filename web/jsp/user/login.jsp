@@ -1,8 +1,3 @@
-<%-- 
-    Document   : login
-    Created on : 4 Jul 2025, 13:19:41
-    Author     : Dell-PC
---%>
 
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 
@@ -41,7 +36,6 @@
             </a>
           </div>
           <p class="form-switch" style="margin-top: 20px;"><a href="<%=request.getContextPath()%>/index.jsp">Back to Home</a></p>
-          <!--<p class="form-switch">Don't have an account? <a href="<%=request.getContextPath()%>/api/auth/register">Register</a></p>-->
           <div id="errorMessage" class="error-message" style="color: red; display: none;"></div>
         </div>
       </section>
@@ -56,7 +50,6 @@
   <script type="module" src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.esm.js"></script>
   <script nomodule src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.js"></script>
   <script>
-    // Existing script remains the same
     const base = '<%=request.getContextPath()%>';
     const errorDiv = document.getElementById('errorMessage');
 
@@ -69,7 +62,6 @@
       errorDiv.style.display = 'none';
     }
 
-    // Handle error from query parameter (e.g., from SSO callback errors)
     const urlParams = new URLSearchParams(window.location.search);
     const errorParam = urlParams.get('error');
     if (errorParam) {

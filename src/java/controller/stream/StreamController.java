@@ -26,7 +26,7 @@ public class StreamController extends HttpServlet {
         String movieIdStr = req.getParameter("movieId");
         int movieId;
         try { movieId = Integer.parseInt(movieIdStr); } catch(Exception e){ resp.setStatus(400); out.write("{\"error\":\"invalid id\"}"); return; }
-        int userId = UserDAO.findByEmail(email).getId();
+        int userId = UserDAO.getUserIdByEmail(email);
         if (!PurchaseDAO.hasAccessToFilm(userId, movieId)) { resp.setStatus(403); out.write("{\"error\":\"no access\"}"); return; }
         // In real system we would get encrypted URL from streaming service
         out.write("{\"url\":\"https://cdn.example.com/stream/" + movieId + "\"}");
@@ -43,7 +43,7 @@ public class StreamController extends HttpServlet {
         String movieIdStr = req.getParameter("movieId");
         int movieId;
         try { movieId = Integer.parseInt(movieIdStr); } catch(Exception e){ resp.setStatus(400); out.write("{\"error\":\"invalid id\"}"); return; }
-        int userId = UserDAO.findByEmail(email).getId();
+        int userId = UserDAO.getUserIdByEmail(email);
         WatchDAO.log(userId, movieId);
         out.write("{\"status\":\"logged\"}");
     }
