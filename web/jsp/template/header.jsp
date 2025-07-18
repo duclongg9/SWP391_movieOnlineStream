@@ -37,12 +37,22 @@
         </div>
 
         <a href="<%=ctx%>/api/auth/login" class="btn btn-primary" id="loginLink">Sign in</a>
-        <a href="<%=ctx%>/api/auth/register" class="btn" id="registerLink">Register</a>
-        <a href="<%=ctx%>/user/profile" class="btn" id="profileLink" style="display:none;">Profile</a>
-        <a href="<%=ctx%>/history" class="btn" id="historyLink" style="display:none;">History</a>
+<!--        <a href="<%=ctx%>/api/auth/register" class="btn" id="registerLink">Register</a>-->
+<!--        <a href="<%=ctx%>/user/profile" class="btn" id="profileLink" style="display:none;">Profile</a>
+        <a href="<%=ctx%>/history" class="btn" id="historyLink" style="display:none;">History</a>-->
         <a href="<%=ctx%>/admin/users" class="btn" id="adminLink" style="display:none;">Admin</a>
-        <a href="#" class="btn" id="logoutLink" style="display:none;">Logout</a>
-        <span id="userEmail" style="color:#fff; margin-left:10px; display:none;"></span>
+<!--        <a href="#" class="btn" id="logoutLink" style="display:none;">Logout</a>
+        <span id="userEmail" style="color:#fff; margin-left:10px; display:none;"></span>-->
+        <div class="user-dropdown" id="userDropdown" style="display:none;">
+          <ion-icon name="person-circle-outline"></ion-icon>
+          <div class="user-dropdown-menu" id="userMenu">
+            <span id="userName" style="padding:5px 10px; display:block;"></span>
+            <a href="<%=ctx%>/user/profile">Profile</a>
+            <a href="<%=ctx%>/history">History</a>
+            <a href="#" id="logoutLink">Logout</a>
+          </div>
+        </div>
+
 
       </div>
 
@@ -133,25 +143,31 @@
       if (token) {
         try {
           const payload = JSON.parse(atob(token.split('.')[1]));
-          const emailSpan = document.getElementById('userEmail');
+//          const emailSpan = document.getElementById('userEmail');
           const loginLink = document.getElementById('loginLink');
-          const regLink = document.getElementById('registerLink');
-          const profileLink = document.getElementById('profileLink');
-          const historyLink = document.getElementById('historyLink');
-          const logoutLink = document.getElementById('logoutLink');
+//          const regLink = document.getElementById('registerLink');
+//          const profileLink = document.getElementById('profileLink');
+//          const historyLink = document.getElementById('historyLink');
+//          const logoutLink = document.getElementById('logoutLink');
           const adminLink = document.getElementById('adminLink');
-          if (payload.sub) {
-            emailSpan.textContent = payload.sub;
-            emailSpan.style.display = 'inline-block';
-          }
+//          if (payload.sub) {
+//            emailSpan.textContent = payload.sub;
+//            emailSpan.style.display = 'inline-block';
+//          }
+          const dropdown = document.getElementById('userDropdown');
+          const nameSpan = document.getElementById('userName');
           if (loginLink) loginLink.style.display = 'none';
-          if (regLink) regLink.style.display = 'none';
-          if (profileLink) profileLink.style.display = 'inline-block';
-          if (historyLink) historyLink.style.display = 'inline-block';
-          if (logoutLink) logoutLink.style.display = 'inline-block';
+//          if (regLink) regLink.style.display = 'none';
+//          if (profileLink) profileLink.style.display = 'inline-block';
+//          if (historyLink) historyLink.style.display = 'inline-block';
+//          if (logoutLink) logoutLink.style.display = 'inline-block';
+            if (dropdown) dropdown.style.display = 'inline-block';
           if (adminLink && payload.sub === 'admin@example.com') {
             adminLink.style.display = 'inline-block';
           }
+          fetch(base + '/api/user/profile', {headers:{Authorization:'Bearer '+token}})
+            .then(r => r.json())
+            .then(d => { if(nameSpan) nameSpan.textContent = d.fullName || payload.sub; });
         } catch (err) {
           console.error('Invalid token:', err);
           localStorage.removeItem('token');

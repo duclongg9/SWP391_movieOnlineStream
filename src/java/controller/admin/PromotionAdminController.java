@@ -3,7 +3,6 @@ package controller.admin;
 import dao.promo.PromotionDAO;
 import dao.user.UserDAO;
 import model.Promotion;
-import model.User;
 import util.JwtUtil;
 import util.SimpleJson;
 
@@ -26,8 +25,7 @@ public class PromotionAdminController extends HttpServlet {
         if (token != null && token.startsWith("Bearer ")) token = token.substring(7);
         String email = JwtUtil.verifyToken(token);
         if (email == null) return false;
-        User u = UserDAO.findByEmail(email);
-        return u != null && "admin".equals(u.getRole());
+        return UserDAO.isAdmin(email);
     }
 
     @Override

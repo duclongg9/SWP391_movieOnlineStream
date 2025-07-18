@@ -14,8 +14,10 @@
   <section class="auth-section">
     <div class="container">
       <h2 class="h2 section-title">Profile</h2>
+      <div style="margin-bottom:15px; color:#fff;" id="fullName"></div>
+      <div style="margin-bottom:15px; color:#fff;" id="emailDisplay"></div>
       <form id="profileForm" class="auth-form">
-        <input type="email" name="email" id="emailField" placeholder="Email" required />
+        <input type="text" name="phone" id="phoneField" placeholder="Phone" required />
         <button type="submit" class="btn btn-primary">Update</button>
       </form>
       <form id="passwordForm" class="auth-form">
@@ -31,12 +33,21 @@
 const base = '<%=request.getContextPath()%>';
 const token = localStorage.getItem('token');
 fetch(base + '/api/user/profile', {headers: {Authorization: 'Bearer ' + token}})
-  .then(r => r.json()).then(d => { document.getElementById('emailField').value = d.email; });
+  .then(r => r.json())
+  .then(d => {
+    document.getElementById('fullName').textContent = 'Name: ' + d.fullName;
+    document.getElementById('emailDisplay').textContent = 'Email: ' + d.email;
+    document.getElementById('phoneField').value = d.phone || '';
+  });
 
 document.getElementById('profileForm').addEventListener('submit', async function(e){
   e.preventDefault();
   const data = new URLSearchParams(new FormData(e.target));
-  const res = await fetch(base + '/api/user/profile', {method:'PUT', body:data, headers:{Authorization:'Bearer '+token}});
+  const res = await fetch(base + '/api/user/profile', {
+    method:'PUT',
+    body:data,
+    headers:{Authorization:'Bearer '+token}
+  });
   document.getElementById('result').textContent = await res.text();
 });
 

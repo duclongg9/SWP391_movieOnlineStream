@@ -1,5 +1,4 @@
- package controller.user;
-
+package controller.user;
 
 import dao.user.UserDAO;
 import model.User;
@@ -15,13 +14,13 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.regex.Pattern;
+
 
 @WebServlet(urlPatterns = {"/api/user/profile", "/api/user/change-password", "/user/profile"})
 public class UserController extends HttpServlet {
 
 
-    private static final Pattern EMAIL_PATTERN = Pattern.compile("^[A-Za-z0-9+_.-]+@(.+)$");
+
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
@@ -41,7 +40,11 @@ public class UserController extends HttpServlet {
                 sendJsonResponse(resp, Map.of("error", "User not found"));
                 return;
             }
-            sendJsonResponse(resp, Map.of("email", user.getEmail()));
+            Map<String,Object> data = new HashMap<>();
+            data.put("email", user.getEmail());
+            data.put("fullName", user.getFullName());
+            data.put("phone", user.getPhone());
+            sendJsonResponse(resp, data);
         });
     }
 
@@ -52,15 +55,15 @@ public class UserController extends HttpServlet {
             return;
         }
         processAuthenticatedRequest(req, resp, email -> {
-            String newEmail = req.getParameter("email") != null ? req.getParameter("email").trim() : null;
-            if (newEmail == null || newEmail.isEmpty() || !EMAIL_PATTERN.matcher(newEmail).matches()) {
+            String phone = req.getParameter("phone") != null ? req.getParameter("phone").trim() : null;
+            if (phone == null || phone.isEmpty()) {
                 resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-                sendJsonResponse(resp, Map.of("error", "Invalid or missing email"));
+                sendJsonResponse(resp, Map.of("error", "Missing phone"));
                 return;
             }
-            boolean success = UserDAO.updateEmail(email, newEmail);
+            boolean success = UserDAO.updatePhone(email, phone);
             if (success) {
-                sendJsonResponse(resp, Map.of("email", newEmail));
+                sendJsonResponse(resp, Map.of("phone", phone));
             } else {
                 resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
                 sendJsonResponse(resp, Map.of("error", "Update failed"));
