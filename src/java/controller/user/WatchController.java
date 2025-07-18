@@ -2,6 +2,7 @@ package controller.user;
 
 import dao.movie.MovieDAO;
 import dao.purchase.PurchaseDAO;
+import dao.user.UserDAO;
 import dao.watch.WatchDAO;
 import util.JwtUtil;
 

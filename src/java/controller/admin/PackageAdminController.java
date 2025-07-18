@@ -4,6 +4,7 @@ import dao.pkg.PackageDAO;
 import dao.user.UserDAO;
 import model.Package;
 import util.JwtUtil;
+import util.SimpleJson;
 
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -33,7 +34,7 @@ public class PackageAdminController extends HttpServlet {
         List<Package> packages = PackageDAO.findAll();
         resp.setContentType("application/json;charset=UTF-8");
         PrintWriter out = resp.getWriter();
-        out.write(toJson(packages)); // Assume toJson
+        out.write(util.SimpleJson.packagesToJson(packages));
     }
 
     @Override

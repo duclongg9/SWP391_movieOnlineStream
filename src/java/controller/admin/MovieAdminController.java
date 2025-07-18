@@ -4,6 +4,7 @@ import dao.user.UserDAO;
 import dao.movie.MovieDAO;
 import model.Movie;
 import util.JwtUtil;
+import util.SimpleJson;
 
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -33,7 +34,7 @@ public class MovieAdminController extends HttpServlet {
         List<Movie> movies = MovieDAO.findAll();
         resp.setContentType("application/json;charset=UTF-8");
         PrintWriter out = resp.getWriter();
-        out.write(toJson(movies)); // Assume toJson method
+        out.write(SimpleJson.moviesToJson(movies));
     }
 
     @Override

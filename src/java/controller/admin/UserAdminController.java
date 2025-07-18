@@ -33,7 +33,7 @@ public class UserAdminController extends HttpServlet {
         List<User> users = UserDAO.findAllUsers();
         resp.setContentType("application/json;charset=UTF-8");
         PrintWriter out = resp.getWriter();
-        out.write(SimpleJson.toJson(users)); // Assume toJson method
+        out.write(SimpleJson.usersToJson(users));
     }
 
     @Override

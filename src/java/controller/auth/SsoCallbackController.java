@@ -1,4 +1,3 @@
-// SsoCallbackController.java (cập nhật default với Client Secret từ JSON mới, endpoint v3, log debug)
 package controller.auth;
 
 import dao.user.UserDAO;

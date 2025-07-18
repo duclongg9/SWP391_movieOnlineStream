@@ -1532,6 +1532,36 @@ body.active { overflow: hidden; }
     letter-spacing: 1px;
   }
 
+   .user-dropdown {
+    position: relative;
+    color: var(--white);
+  }
+
+  .user-dropdown-menu {
+    display: none;
+    position: absolute;
+    right: 0;
+    background: var(--gunmetal-2);
+    padding: 10px;
+    border-radius: 4px;
+  }
+
+  .user-dropdown:hover .user-dropdown-menu {
+    display: block;
+  }
+
+  .user-dropdown-menu a {
+    color: var(--white);
+    padding: 5px 10px;
+    display: block;
+  }
+
+  .user-dropdown-menu a:hover {
+    background: var(--citrine);
+    color: var(--black);
+  }
+
+
 
 
   /**

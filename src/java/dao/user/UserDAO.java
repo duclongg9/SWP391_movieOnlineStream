@@ -19,6 +19,8 @@ public class UserDAO {
             if (rs.next()) {
                 User u = new User();
                 u.setId(rs.getInt("id"));
+                u.setUsername(rs.getString("username"));
+                u.setFullName(rs.getString("full_name"));
                 u.setEmail(rs.getString("email"));
                 u.setPassword(rs.getString("password"));
                 u.setRole(rs.getString("role"));
@@ -65,6 +67,24 @@ public class UserDAO {
         return false;
     }
 
+    public static boolean updatePhone(String email, String phone) {
+        String sql = "UPDATE users SET phone = ? WHERE email = ?";
+        Connection conn = DBConnection.getConnection();
+        if (conn == null) return false;
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, phone);
+            ps.setString(2, email);
+            return ps.executeUpdate() == 1;
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            DBConnection.closeConnection(conn);
+        }
+        return false;
+    }
+
+
+    
     public static boolean changePassword(String email, String newHashedPassword) {
         String sql = "UPDATE users SET password = ? WHERE email = ?";
         Connection conn = DBConnection.getConnection();
@@ -188,5 +208,30 @@ public class UserDAO {
             DBConnection.closeConnection(conn);
         }
         return null;
+    }
+    
+    
+    /**
+     * Create a new user authenticated via SSO if they do not already exist.
+     * The new user will have role "user" and no password.
+     */
+    public static void createSsoUser(String email, String provider, String fullName) {
+        if (email == null || email.isBlank()) return;
+        if (findByEmail(email) != null) return;
+
+        String sql = "INSERT INTO users (email, full_name, sso_provider, role) " +
+                "VALUES (?, ?, ?, 'user')";
+        Connection conn = DBConnection.getConnection();
+        if (conn == null) return;
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, email);
+            ps.setString(2, fullName == null ? "" : fullName);
+            ps.setString(3, provider);
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            DBConnection.closeConnection(conn);
+        }
     }
 }
