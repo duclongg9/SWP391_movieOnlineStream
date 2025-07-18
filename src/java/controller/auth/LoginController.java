@@ -4,18 +4,13 @@ import com.google.gson.Gson;
 import dao.user.UserDAO;
 import model.User;
 import util.JwtUtil;
-import util.PasswordUtil;
-
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
-import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import jakarta.servlet.http.HttpSession;
 
 import java.io.IOException;
-
 import java.util.Map;
 
 @WebServlet(urlPatterns = {"/api/auth/login", "/login"})
@@ -28,6 +23,7 @@ public class LoginController extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         resp.setContentType("application/json;charset=UTF-8");
+        
         String email = req.getParameter("email");
         String password = req.getParameter("password");
         if (email == null || password == null || email.isBlank() || password.isBlank()) {
@@ -35,12 +31,21 @@ public class LoginController extends HttpServlet {
             sendJson(resp, Map.of("error", "Missing email or password"));
             return;
         }
+        
         User user = UserDAO.validateUser(email, password);
         if (user == null) {
             resp.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             sendJson(resp, Map.of("error", "Invalid credentials"));
             return;
         }
+        
+        // Kiểm tra role chỉ cho admin
+        if (!"admin".equals(user.getRole())) {
+            resp.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            sendJson(resp, Map.of("error", "This login method is only for admins"));
+            return;
+        }
+        
         String token = JwtUtil.generateToken(email);
         sendJson(resp, Map.of("token", token));
     }
@@ -51,7 +56,3 @@ public class LoginController extends HttpServlet {
         }
     }
 }
-
-
-
-////////////

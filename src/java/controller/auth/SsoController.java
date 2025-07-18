@@ -1,3 +1,4 @@
+// SsoController.java (cập nhật default với giá trị từ JSON mới)
 package controller.auth;
 
 import jakarta.servlet.ServletException;
@@ -17,7 +18,7 @@ public class SsoController extends HttpServlet {
     private static final String OAUTH_STATE = "oauth_state";
 
     private static final String GOOGLE_CLIENT_ID =
-            System.getenv().getOrDefault("GOOGLE_CLIENT_ID", "142934635795-5ra2ujg4nuvdo6e9p6m79jauncijb7qg.apps.googleusercontent.com");
+            System.getenv().getOrDefault("GOOGLE_CLIENT_ID", "142934635795-2bv77h97iq762n671qclb69f8b3dkf52.apps.googleusercontent.com"); // Updated from new JSON
     private static final String GOOGLE_REDIRECT_URI =
             System.getenv().getOrDefault("GOOGLE_REDIRECT_URI",
                     "http://localhost:9999/SWP391_movieOnlineStream/api/auth/sso/google/callback");
@@ -54,6 +55,7 @@ public class SsoController extends HttpServlet {
                 "&redirect_uri=" + URLEncoder.encode(GOOGLE_REDIRECT_URI, StandardCharsets.UTF_8) +
                 "&client_id=" + GOOGLE_CLIENT_ID +
                 "&state=" + URLEncoder.encode(state, StandardCharsets.UTF_8);
+        System.out.println("=== DEBUG: Redirecting to Google: " + url); // Log for debug
         resp.sendRedirect(url);
     }
 
@@ -66,7 +68,9 @@ public class SsoController extends HttpServlet {
         String url = "https://www.facebook.com/dialog/oauth" +
                 "?client_id=" + FACEBOOK_CLIENT_ID +
                 "&redirect_uri=" + URLEncoder.encode(FACEBOOK_REDIRECT_URI, StandardCharsets.UTF_8) +
-                "&state=" + URLEncoder.encode(state, StandardCharsets.UTF_8);
+                "&state=" + URLEncoder.encode(state, StandardCharsets.UTF_8) +
+                "&scope=email"; // Added scope=email
+        System.out.println("=== DEBUG: Redirecting to Facebook: " + url); // Log for debug
         resp.sendRedirect(url);
     }
 

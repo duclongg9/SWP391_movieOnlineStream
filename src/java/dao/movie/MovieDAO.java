@@ -1,7 +1,3 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package dao.movie;
 
 import dao.connect.DBConnection;
@@ -107,6 +103,24 @@ public class MovieDAO {
         } finally {
             DBConnection.closeConnection(conn);
         }
+    }
+
+    public static List<Movie> findAll() {
+        String sql = "SELECT * FROM movies WHERE is_deleted=0";
+        Connection conn = DBConnection.getConnection();
+        List<Movie> list = new ArrayList<>();
+        if (conn == null) return list;
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                list.add(map(rs));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            DBConnection.closeConnection(conn);
+        }
+        return list;
     }
 
 

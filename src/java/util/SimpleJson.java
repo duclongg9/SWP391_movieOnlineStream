@@ -4,6 +4,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import model.User;
+import model.Movie;
+import model.Package;
 
 public class SimpleJson {
    
@@ -57,6 +59,57 @@ public class SimpleJson {
             "}";
     }
 
+public static String packageToJson(Package p) {
+        return "{" +
+                "\"id\":" + p.getId() +
+                ",\"name\":\"" + escape(p.getName()==null?"":p.getName()) + "\"" +
+                ",\"description\":\"" + escape(p.getDescription()==null?"":p.getDescription()) + "\"" +
+                ",\"durationDays\":" + p.getDurationDays() +
+                ",\"pricePoint\":" + p.getPricePoint() +
+                ",\"deleted\":" + p.isDeleted() +
+                "}";
+    }
+
+    public static String packagesToJson(List<Package> list) {
+        StringBuilder sb = new StringBuilder();
+        sb.append('[');
+        for (int i=0;i<list.size();i++) {
+            sb.append(packageToJson(list.get(i)));
+            if (i < list.size()-1) sb.append(',');
+        }
+        sb.append(']');
+        return sb.toString();
+
+    }
+
+    public static String movieToJson(Movie m) {
+        return "{" +
+                "\"id\":" + m.getId() +
+                ",\"title\":\"" + escape(m.getTitle()==null?"":m.getTitle()) + "\"" +
+                ",\"genre\":\"" + escape(m.getGenre()==null?"":m.getGenre()) + "\"" +
+                ",\"actor\":\"" + escape(m.getActor()==null?"":m.getActor()) + "\"" +
+                ",\"description\":\"" + escape(m.getDescription()==null?"":m.getDescription()) + "\"" +
+                ",\"videoPath\":\"" + escape(m.getVideoPath()==null?"":m.getVideoPath()) + "\"" +
+                ",\"pricePoint\":" + m.getPricePoint() +
+                "}";
+    }
+
+    public static String moviesToJson(List<Movie> list) {
+        StringBuilder sb = new StringBuilder();
+        sb.append('[');
+        for (int i=0;i<list.size();i++) {
+            sb.append(movieToJson(list.get(i)));
+            if (i < list.size()-1) sb.append(',');
+        }
+        sb.append(']');
+        return sb.toString();
+
+    }
+
+
+
+
+    
     public static String listToJson(List<Map<String,Object>> list) {
         StringBuilder sb = new StringBuilder();
         sb.append('[');
