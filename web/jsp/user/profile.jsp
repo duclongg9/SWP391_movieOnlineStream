@@ -174,6 +174,9 @@
 <script>
 const base = '<%=request.getContextPath()%>';
 const token = localStorage.getItem('token');
+if (!token) {
+  window.location.href = base + '/login';
+}
 const fullName = document.getElementById('fullName');
 const emailDisplay = document.getElementById('emailDisplay');
 const phoneField = document.getElementById('phoneField');
@@ -219,12 +222,11 @@ fetch(base + '/api/purchase/history', {headers: {Authorization: 'Bearer ' + toke
     }
     packages.forEach(p => {
       const tr = document.createElement('tr');
-      tr.innerHTML = `
-        <td>${p.packageName || 'N/A'}</td>
-        <td>${p.purchaseDate ? new Date(p.purchaseDate).toLocaleDateString() : 'N/A'}</td>
-        <td>${p.expirationDate ? new Date(p.expirationDate).toLocaleDateString() : 'N/A'}</td>
-        <td>${p.status || 'Active'}</td>
-      `;
+      tr.innerHTML =
+        '<td>' + (p.packageName || 'N/A') + '</td>' +
+        '<td>' + (p.purchaseDate ? new Date(p.purchaseDate).toLocaleDateString() : 'N/A') + '</td>' +
+        '<td>' + (p.expirationDate ? new Date(p.expirationDate).toLocaleDateString() : 'N/A') + '</td>' +
+        '<td>' + (p.status || 'Active') + '</td>';
       packagesBody.appendChild(tr);
     });
   })
@@ -259,4 +261,5 @@ document.getElementById('profileForm').addEventListener('submit', async function
 });
 </script>
 </body>
+
 </html>

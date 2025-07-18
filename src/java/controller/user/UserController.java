@@ -44,6 +44,7 @@ public class UserController extends HttpServlet {
             data.put("email", user.getEmail());
             data.put("fullName", user.getFullName());
             data.put("phone", user.getPhone());
+            data.put("phoneVerified", user.isPhoneVerified());
             sendJsonResponse(resp, data);
         });
     }
