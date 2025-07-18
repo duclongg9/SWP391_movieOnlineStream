@@ -9,6 +9,7 @@ public class User {
     private String phone;
     private String email;
     private String password;
+    private String profilePic;
     private String ssoProvider;
     private int pointBalance;
     private boolean isLocked;
@@ -22,7 +23,7 @@ public class User {
     public User() {}
 
     public User(int id, String username, String fullName, String phone, String email,
-                String password, String ssoProvider, int pointBalance,
+                String password, String profilePic, String ssoProvider, int pointBalance,
                 boolean isLocked, boolean phoneVerified, String otpCode, Timestamp otpExpire,
                 boolean deleted, String role, Timestamp createdAt) {
         this.id = id;
@@ -31,6 +32,7 @@ public class User {
         this.phone = phone;
         this.email = email;
         this.password = password;
+        this.profilePic = profilePic;
         this.ssoProvider = ssoProvider;
         this.pointBalance = pointBalance;
         this.isLocked = isLocked;
@@ -40,6 +42,22 @@ public class User {
         this.deleted = deleted;
         this.role = role;
         this.createdAt = createdAt;
+    }
+
+    public String getProfilePic() {
+        return profilePic;
+    }
+
+    public void setProfilePic(String profilePic) {
+        this.profilePic = profilePic;
+    }
+
+    public boolean isIsLocked() {
+        return isLocked;
+    }
+
+    public void setIsLocked(boolean isLocked) {
+        this.isLocked = isLocked;
     }
 
     // getters and setters

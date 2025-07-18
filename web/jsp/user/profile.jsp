@@ -109,6 +109,7 @@
         <img src="<%=request.getContextPath()%>/assets/images/avatar-placeholder.jpg" alt="Profile" class="profile-img"> <!-- Add a placeholder image -->
         <h2 id="fullName" class="mb-1">Loading...</h2>
         <p id="emailDisplay" class="text-muted mb-0">Email: Loading...</p>
+        <p id="accountType" class="text-muted">Account: Loading...</p>
       </div>
 
       <!-- Personal Information Card -->
@@ -177,17 +178,23 @@ const token = localStorage.getItem('token');
 if (!token) {
   window.location.href = base + '/login';
 }
-const fullName = document.getElementById('fullName');
-const emailDisplay = document.getElementById('emailDisplay');
-const phoneField = document.getElementById('phoneField');
-const walletBalance = document.getElementById('walletBalance');
-const points = document.getElementById('points');
-const cards = document.getElementById('cards');
-const packagesBody = document.getElementById('packagesBody');
-const noPackages = document.getElementById('noPackages');
-const packagesTable = document.getElementById('packagesTable');
-const resultDiv = document.getElementById('result');
-const loading = document.getElementById('loading');
+document.addEventListener('DOMContentLoaded', function() {
+  const fullName = document.getElementById('fullName');
+  const emailDisplay = document.getElementById('emailDisplay');
+  const accountType = document.getElementById('accountType');
+  const phoneField = document.getElementById('phoneField');
+  const profileImg = document.getElementById('profileImg');
+  const walletBalance = document.getElementById('walletBalance');
+  const points = document.getElementById('points');
+  const cards = document.getElementById('cards');
+  const packagesBody = document.getElementById('packagesBody');
+  const noPackages = document.getElementById('noPackages');
+  const packagesTable = document.getElementById('packagesTable');
+  const resultDiv = document.getElementById('result');
+  const loading = document.getElementById('loading');
+
+  const storedPic = localStorage.getItem('picture');
+  if (profileImg && storedPic) profileImg.src = storedPic;
 
 // Fetch profile data
 fetch(base + '/api/user/profile', {headers: {Authorization: 'Bearer ' + token}})
@@ -198,10 +205,13 @@ fetch(base + '/api/user/profile', {headers: {Authorization: 'Bearer ' + token}})
   .then(d => {
     fullName.textContent = d.fullName || 'N/A';
     emailDisplay.textContent = 'Email: ' + (d.email || 'N/A');
+    accountType.textContent = 'Account: ' + (d.role === 'admin' ? 'Admin' : 'Customer');
     phoneField.value = d.phone || '';
-    walletBalance.textContent = d.walletBalance ? d.walletBalance.toLocaleString() + ' VND' : '0 VND'; // Assume API returns walletBalance
-    points.textContent = d.points || '0'; // Assume API returns points
-    cards.textContent = d.cards ? d.cards.join(', ') : 'No cards added.'; // Assume API returns cards array
+    walletBalance.textContent = d.walletBalance ? d.walletBalance.toLocaleString() + ' VND' : '0 VND';
+    points.textContent = d.points || '0';
+    cards.textContent = d.cards ? d.cards.join(', ') : 'No cards added.';
+    if(profileImg && d.picture) profileImg.src = d.picture;
+    if(d.picture) localStorage.setItem('picture', d.picture);
   })
   .catch(err => {
     fullName.textContent = 'Error: ' + err.message;
@@ -258,6 +268,7 @@ document.getElementById('profileForm').addEventListener('submit', async function
     resultDiv.className = 'result error';
     resultDiv.style.display = 'block';
   }
+  });
 });
 </script>
 </body>

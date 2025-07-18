@@ -23,6 +23,7 @@ public class UserDAO {
                 u.setFullName(rs.getString("full_name"));
                 u.setEmail(rs.getString("email"));
                 u.setPassword(rs.getString("password"));
+                u.setProfilePic(rs.getString("profile_pic"));
                 u.setRole(rs.getString("role"));
                 u.setPhone(rs.getString("phone"));
                 u.setPhoneVerified(rs.getBoolean("phone_verified"));
@@ -86,6 +87,23 @@ public class UserDAO {
         }
         return false;
     }
+    
+    public static void updateProfilePic(String email, String picUrl) {
+        String sql = "UPDATE users SET profile_pic=? WHERE email=?";
+        Connection conn = DBConnection.getConnection();
+        if (conn == null) return;
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, picUrl);
+            ps.setString(2, email);
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            DBConnection.closeConnection(conn);
+        }
+    }
+
+
 
     public static void updateOtp(String email, String code, Timestamp expire) {
         String sql = "UPDATE users SET otp_code=?, otp_expire=? WHERE email=?";
@@ -283,18 +301,19 @@ public class UserDAO {
      * Create a new user authenticated via SSO if they do not already exist.
      * The new user will have role "user" and no password.
      */
-    public static void createSsoUser(String email, String provider, String fullName) {
+    public static void createSsoUser(String email, String provider, String fullName, String profilePic) {
         if (email == null || email.isBlank()) return;
         if (findByEmail(email) != null) return;
 
-        String sql = "INSERT INTO users (email, full_name, sso_provider, role) " +
-                "VALUES (?, ?, ?, 'user')";
+        String sql = "INSERT INTO users (email, full_name, profile_pic, sso_provider, role) " +
+                "VALUES (?, ?, ?, ?, 'user')";
         Connection conn = DBConnection.getConnection();
         if (conn == null) return;
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, email);
             ps.setString(2, fullName == null ? "" : fullName);
-            ps.setString(3, provider);
+            ps.setString(3, profilePic);
+            ps.setString(4, provider);
             ps.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
