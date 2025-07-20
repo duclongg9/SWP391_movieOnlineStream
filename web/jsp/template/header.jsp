@@ -55,6 +55,18 @@
             <a href="#" id="logoutLink">Logout</a>
           </div>
         </div>
+        <div class="manager-dropdown" id="managerDropdown" style="display:none;">
+          <span>Manager</span>
+          <div class="manager-dropdown-menu">
+            <a href="<%=ctx%>/admin/movies">Manage Movies</a>
+            <a href="<%=ctx%>/admin/genres">Manage Genres</a>
+            <a href="<%=ctx%>/admin/packages">Manage Packages</a>
+            <a href="<%=ctx%>/admin/vnpay-accounts">VNPay Accounts</a>
+            <a href="<%=ctx%>/admin/google-accounts">Google Accounts</a>
+            <a href="#" id="adminLogout">Logout</a>
+          </div>
+        </div>
+
 
 
       </div>
