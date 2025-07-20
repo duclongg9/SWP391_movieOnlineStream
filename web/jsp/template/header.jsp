@@ -154,7 +154,25 @@
 <script>
     (function() {
       const token = localStorage.getItem('token');
+       const adminToken = localStorage.getItem('adminToken');
       const base = '<%=ctx%>';
+      if (adminToken) {
+        const loginLink = document.getElementById('loginLink');
+        const managerDropdown = document.getElementById('managerDropdown');
+        const userDropdown = document.getElementById('userDropdown');
+        if (loginLink) loginLink.style.display = 'none';
+        if (userDropdown) userDropdown.style.display = 'none';
+        if (managerDropdown) managerDropdown.style.display = 'inline-block';
+        const adminLogout = document.getElementById('adminLogout');
+        if (adminLogout) {
+          adminLogout.addEventListener('click', function(e){
+            e.preventDefault();
+            localStorage.removeItem('adminToken');
+            window.location.href = base + '/admin/login.jsp';
+          });
+        }
+        return;
+      }
       if (token) {
         try {
           const payload = JSON.parse(atob(token.split('.')[1]));
@@ -170,6 +188,7 @@
 //            emailSpan.style.display = 'inline-block';
 //          }
           const dropdown = document.getElementById('userDropdown');
+           const managerDropdown = document.getElementById('managerDropdown');
           const nameSpan = document.getElementById('userName');
           const roleSpan = document.getElementById('userRole');
           const userPic = document.getElementById('userPic');
@@ -190,6 +209,20 @@
               if(nameSpan) nameSpan.textContent = d.fullName || payload.sub;
               if(roleSpan) roleSpan.textContent = d.role === 'admin' ? 'Admin' : 'Customer';
               if(userPic && d.picture) userPic.src = d.picture;
+              if(d.role === 'admin') {
+                if(dropdown) dropdown.style.display = 'none';
+                if(managerDropdown) managerDropdown.style.display = 'inline-block';
+                const adminLogout = document.getElementById('adminLogout');
+                if (adminLogout) {
+                  adminLogout.addEventListener('click', function(e){
+                    e.preventDefault();
+                    localStorage.removeItem('token');
+                    window.location.href = base + '/admin/login.jsp';
+                  });
+                }
+              } else {
+                if(dropdown) dropdown.style.display = 'inline-block';
+              }
               if(d.picture) localStorage.setItem('picture', d.picture);
             });
         } catch (err) {
