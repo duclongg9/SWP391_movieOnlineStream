@@ -44,11 +44,14 @@
 <!--        <a href="#" class="btn" id="logoutLink" style="display:none;">Logout</a>
         <span id="userEmail" style="color:#fff; margin-left:10px; display:none;"></span>-->
         <div class="user-dropdown" id="userDropdown" style="display:none;">
-          <ion-icon name="person-circle-outline"></ion-icon>
+          <img id="userPic" src="<%=ctx%>/assets/images/avatar-placeholder.jpg" alt="User" style="width:32px;height:32px;border-radius:50%;">
           <div class="user-dropdown-menu" id="userMenu">
             <span id="userName" style="padding:5px 10px; display:block;"></span>
+            <span id="userRole" style="padding:0 10px; display:block;font-size:0.8em;color:#ccc;"></span>
             <a href="<%=ctx%>/user/profile">Profile</a>
             <a href="<%=ctx%>/history">History</a>
+            <a href="<%=ctx%>/topup">Top Up</a>
+            <a href="<%=ctx%>/packages">Packages</a>
             <a href="#" id="logoutLink">Logout</a>
           </div>
         </div>
@@ -156,6 +159,10 @@
 //          }
           const dropdown = document.getElementById('userDropdown');
           const nameSpan = document.getElementById('userName');
+          const roleSpan = document.getElementById('userRole');
+          const userPic = document.getElementById('userPic');
+          const storedPic = localStorage.getItem('picture');
+          if(userPic && storedPic) userPic.src = storedPic;
           if (loginLink) loginLink.style.display = 'none';
 //          if (regLink) regLink.style.display = 'none';
 //          if (profileLink) profileLink.style.display = 'inline-block';
@@ -167,10 +174,16 @@
           }
           fetch(base + '/api/user/profile', {headers:{Authorization:'Bearer '+token}})
             .then(r => r.json())
-            .then(d => { if(nameSpan) nameSpan.textContent = d.fullName || payload.sub; });
+            .then(d => {
+              if(nameSpan) nameSpan.textContent = d.fullName || payload.sub;
+              if(roleSpan) roleSpan.textContent = d.role === 'admin' ? 'Admin' : 'Customer';
+              if(userPic && d.picture) userPic.src = d.picture;
+              if(d.picture) localStorage.setItem('picture', d.picture);
+            });
         } catch (err) {
           console.error('Invalid token:', err);
           localStorage.removeItem('token');
+          localStorage.removeItem('picture');
         }
       }
       const logoutLink = document.getElementById('logoutLink');
@@ -183,6 +196,7 @@
             console.error('Logout request failed:', err);
           }
           localStorage.removeItem('token');
+          localStorage.removeItem('picture');
           window.location.href = base + '/index.jsp';
         });
       }

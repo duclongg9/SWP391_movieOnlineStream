@@ -55,6 +55,7 @@ public class SimpleJson {
             ",\"email\":\"" + escape(u.getEmail()) + "\"" +
             ",\"pointBalance\":" + u.getPointBalance() +
             ",\"locked\":" + u.isLocked() +
+            ",\"phoneVerified\":" + u.isPhoneVerified() +
             ",\"deleted\":" + u.isDeleted() +
             "}";
     }
