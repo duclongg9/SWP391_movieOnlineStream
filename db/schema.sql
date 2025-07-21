@@ -120,8 +120,8 @@ INSERT INTO movies(title, genre, actor, video_path, price_point, description, du
 
 INSERT INTO users (username, full_name, phone, phone_verified, email, password, profile_pic, role, point_balance, is_deleted)
 VALUES
-    ('admin','Administrator','0900000000',1,'admin@example.com','0192023a7bbd73250516f069df18b500',NULL,'admin',0,0),
-    ('user1','User One','0900000001',0,'user1@example.com','0192023a7bbd73250516f069df18b500',NULL,'user',0,0);
+    ('admin','Administrator','0900000000',1,'admin@example.com','8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918',NULL,'admin',0,0),
+    ('user1','User One','0900000001',0,'user1@example.com','8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918',NULL,'user',0,0);
 
 -- Sample data for wallet
 INSERT INTO wallet (user_id, balance_point, last_recharged)

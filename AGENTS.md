@@ -167,3 +167,181 @@ CREATE TABLE movies (
 - Tất cả dữ liệu nhạy cảm như mật khẩu, token phải được **mã hóa/hash**
 - Phim được **mã hóa theo gói hoặc mã người dùng**, chỉ được giải mã khi user có quyền xem
 - Hệ thống hỗ trợ lọc phim theo **thể loại**, phục vụ mục đích phân loại và đề xuất
+# Hướng dẫn thêm chức năng hiển thị phim trong dự án Java
+
+File này tổng hợp các bước chính để thêm tính năng phát phim (stream HLS) vào dự án Java hiện tại, dựa trên phần mẫu ở thư mục `movie_test`.
+
+## 1. Thêm trường `video_path` cho bảng phim
+- Mở file SQL tạo bảng `movies` và bổ sung cột `video_path` (URL tới file HLS/m3u8).
+- Trường này lưu đường dẫn HLS cố định, ví dụ `https://cdn.example.com/movies/abc/index.m3u8`.
+- Khi tạo hoặc cập nhật phim trong Admin, cần lưu giá trị này vào DB qua `MovieDAO`.
+
+## 2. Cập nhật `MovieAdminController`
+- Trong phương thức tạo/sửa phim, lấy tham số `videoPath` từ form và gán vào đối tượng `Movie`.
+- Gọi `MovieDAO.insert()` hoặc `update()` để lưu `videoPath` xuống DB.
+
+## 3. Tạo API lấy URL stream
+- Thêm Servlet `StreamController` (nếu chưa có) với endpoint `/api/stream/url`.
+- Kiểm tra user đã mua phim hoặc gói chưa (`PurchaseDAO.hasAccessToFilm`). Nếu chưa, trả về lỗi 403.
+- Nếu hợp lệ, trả về JSON chứa link HLS đã lưu trong `video_path`.
+- Ví dụ request: `GET /api/stream/url?movieId=5`.
+
+```java
+out.write("{\"url\":\"" + movie.getVideoPath() + "\"}");
+```
+
+## 4. Giao diện phát phim (Frontend)
+- Sử dụng component `VideoPlayer` ở `movie_test` (dùng thư viện `hls.js`).
+- Khi mở trang xem phim, gọi API `/api/stream/url?movieId=...` để lấy link.
+- Gửi link đó vào `VideoPlayer` để phát.
+
+## 5. Kiểm tra quyền truy cập
+- Mọi request tới API stream cần xác thực token đăng nhập.
+- Chỉ cho phép xem phim nếu user đã mua phim/gói tương ứng.
+
+## 6. Ghi nhật ký xem phim
+- Tùy yêu cầu, có thể thêm API `/api/stream/watchlog` để lưu lại thời gian xem, phục vụ gợi ý hoặc thống kê.
+
+
+4 · Business Rules
+
+Kiểm quyền stream: Chỉ trả video_path khi:
+
+User đã mua phim lẻ HOẶC
+
+User có gói chứa phim còn hiệu lực.
+
+Tính giá gói
+
+Tổng tiền = monthly_price × số_tháng
+
+Nâng cấp gói
+
+Giá_phải_trả = Giá_gói_mới − (Số_ngày_còn lại × Giá_gói_cũ / 30)
+
+Soft‑delete: is_deleted = TRUE cho phim/gói thay vì xoá cứng.
+
+Mã hoá Video: Phim được mã hoá theo key gói/user; giải mã phía CDN/Streaming khi hợp lệ.
+
+Ảnh đại diện (Profile Picture): Nếu users.profile_pic NULL nhưng sso_provider là 'google' hoặc 'facebook', frontend sẽ lấy URL avatar (picture claim của ID Token OAuth2 hoặc Graph API) để hiển thị, đồng thời có thể đẩy job async ghi lại vào DB. Nếu cả hai trường NULL ⇒ hiển thị placeholder mặc định. hoá Video**: Phim được mã hoá theo key gói/user; giải mã phía CDN/Streaming khi hợp lệ.
+
+5 · Luồng Quản trị Gói Phim
+
+Danh sách gói → Tạo mới / Sửa.
+
+Trong form gói, checkbox đa lựa chọn danh sách phim (AJAX search).
+
+Lưu packages + bảng package_movies.
+
+Tự tính monthly_price khi admin nhập giá từng phim hoặc nhập tay.
+
+6 · Frontend JSP
+
+Trang movie.jsp nhúng <video id="player" controls> + script hls.js.
+
+Gọi API /api/stream/url?movieId=..., lấy JSON {url} → load vào Hls instance.
+
+7 · Bước Triển khai
+
+DB Migration: thêm video_path, tạo bảng packages, package_movies, user_packages, transactions.
+
+DAO Layer: MovieDAO, PackageDAO, TransactionDAO.
+
+Servlet: StreamController, PackageController, AdminPackageController.
+
+JSP: giao diện chọn phim cho gói & player.
+
+Payment IPN: servlet nhận callback, update transactions, cộng point.
+
+CDN Config: đồng bộ HLS với hashed token.
+
+8 · Bảo mật & Hiệu năng
+
+Hash mật khẩu (BCrypt), HTTPS bắt buộc.
+
+Tất cả API bảo vệ JWT filter.
+
+Sử dụng Cache-Control: max-age=... cho HLS segment.
+
+Thêm chỉ số INDEX cho trường tìm kiếm (title, genre).
+9 · Đồng bộ & Hiển thị Avatar
+
+9.1 Luồng Login SSO
+
+Servlet callback (/api/auth/sso/callback) lấy id_token → verify.
+
+Trích picture claim.
+
+Ghi vào session
+
+session.setAttribute("avatarUrl", claims.get("picture"));
+
+Nếu cột users.profile_pic NULL ⇢ cập nhật một lần:
+
+UserDAO.updateProfilePic(userId, claims.get("picture"));
+// SQL: UPDATE users SET profile_pic=? 
+//       WHERE id=? AND profile_pic IS NULL LIMIT 1;
+
+9.2 AvatarFilter (JEE Filter)
+
+public class AvatarFilter implements Filter {
+  public void doFilter(ServletRequest req, ServletResponse res, FilterChain chain)
+      throws IOException, ServletException {
+    HttpSession session = ((HttpServletRequest) req).getSession(false);
+    String avatar = session != null ? (String) session.getAttribute("avatarUrl") : null;
+    if (avatar == null && session != null) {
+        User u = (User) session.getAttribute("authUser");
+        avatar = u != null ? u.getProfilePic() : null;
+    }
+    if (avatar == null) avatar = req.getServletContext().getContextPath() + "/assets/img/avatar-placeholder.png";
+    req.setAttribute("avatarUrl", avatar);
+    chain.doFilter(req, res);
+  }
+}
+
+Frontend JSP hiển thị: <img src="${avatarUrl}" class="avatar"/>
+
+9.3 Kiểm thử
+
+Tình huống
+
+DB profile_pic
+
+Token picture
+
+Kết quả hiển thị
+
+DB sau login
+
+New SSO user
+
+NULL
+
+Có
+
+Avatar từ token
+
+Cập nhật URL
+
+Trở lại SSO
+
+Có
+
+Có
+
+Avatar DB (hoặc session)
+
+Giữ nguyên
+
+Email/Password
+
+NULL
+
+Không
+
+Placeholder
+
+Không đổi
+
+Tip: Có thể bật CRON định kỳ làm “avatar hygiene” để kiểm tra URL hỏng và refetch.
+

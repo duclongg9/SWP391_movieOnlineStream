@@ -4,6 +4,7 @@ import dao.purchase.PurchaseDAO;
 import dao.user.UserDAO;
 import dao.watch.WatchDAO;
 import util.JwtUtil;
+import dao.movie.MovieDAO;
 
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -28,8 +29,8 @@ public class StreamController extends HttpServlet {
         try { movieId = Integer.parseInt(movieIdStr); } catch(Exception e){ resp.setStatus(400); out.write("{\"error\":\"invalid id\"}"); return; }
         int userId = UserDAO.getUserIdByEmail(email);
         if (!PurchaseDAO.hasAccessToFilm(userId, movieId)) { resp.setStatus(403); out.write("{\"error\":\"no access\"}"); return; }
-        // In real system we would get encrypted URL from streaming service
-        out.write("{\"url\":\"https://cdn.example.com/stream/" + movieId + "\"}");
+        String videoUrl = MovieDAO.getMovieById(movieId).getVideoPath();
+        out.write("{\"url\":\"" + videoUrl + "\"}");
     }
 
     @Override
