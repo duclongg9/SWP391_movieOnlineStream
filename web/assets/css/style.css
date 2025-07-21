@@ -1561,6 +1561,34 @@ body.active { overflow: hidden; }
     color: var(--black);
   }
 
+ .manager-dropdown {
+    position: relative;
+    color: var(--white);
+  }
+
+  .manager-dropdown-menu {
+    display: none;
+    position: absolute;
+    right: 0;
+    background: var(--gunmetal-2);
+    padding: 10px;
+    border-radius: 4px;
+  }
+
+  .manager-dropdown:hover .manager-dropdown-menu {
+    display: block;
+  }
+
+  .manager-dropdown-menu a {
+    color: var(--white);
+    padding: 5px 10px;
+    display: block;
+  }
+
+  .manager-dropdown-menu a:hover {
+    background: var(--citrine);
+    color: var(--black);
+  }
 
 
 

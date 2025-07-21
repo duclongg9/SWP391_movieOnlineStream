@@ -8,7 +8,9 @@
   <link rel="stylesheet" href="<%=request.getContextPath()%>/assets/css/style.css">
 </head>
 <body id="top">
+     <jsp:include page="/jsp/template/header.jsp" />
 <main>
+   
   <section class="auth-section">
     <div class="container">
       <h2 class="h2 section-title">Movies</h2>
