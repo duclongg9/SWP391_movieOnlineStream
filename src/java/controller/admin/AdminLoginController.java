@@ -3,7 +3,7 @@ package controller.admin;
 import dao.user.UserDAO;
 import model.User;
 import util.JwtUtil;
-import util.PasswordUtil;
+import util.PasswordUtil_test;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
@@ -28,7 +28,7 @@ public class AdminLoginController extends HttpServlet {
             String username = req.getParameter("username");
             String password = req.getParameter("password");
             User admin = UserDAO.findAdminByUsername(username);
-            if (admin != null && admin.getPassword().equals(PasswordUtil.hash(password))) {
+            if (admin != null && admin.getPassword().equals(PasswordUtil_test.hash(password))) {
                 String token = JwtUtil.generateToken(admin.getEmail());
                 out.write("{\"token\":\"" + token + "\"}");
             } else {
@@ -57,12 +57,12 @@ public class AdminLoginController extends HttpServlet {
                 out.write("{\"error\":\"missing parameters\"}");
                 return;
             }
-            if (!user.getPassword().equals(PasswordUtil.hash(oldPassword))) {
+            if (!user.getPassword().equals(PasswordUtil_test.hash(oldPassword))) {
                 resp.setStatus(401);
                 out.write("{\"error\":\"invalid old password\"}");
                 return;
             }
-            boolean updated = UserDAO.changePassword(email, PasswordUtil.hash(newPassword));
+            boolean updated = UserDAO.changePassword(email, PasswordUtil_test.hash(newPassword));
             if (updated) {
                 out.write("{\"status\":\"success\"}");
             } else {

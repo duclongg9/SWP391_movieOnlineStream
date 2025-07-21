@@ -106,7 +106,7 @@
   <section class="auth-section">
     <div class="container profile-container">
       <div class="profile-header">
-        <img id="profileImg" src="<%=request.getContextPath()%>/assets/images/avatar-placeholder.jpg" alt="Profile" class="profile-img"> <!-- Add a placeholder image -->
+        <img id="profileImg" src="${avatarUrl}" alt="Profile" class="profile-img">        
         <h2 id="fullName" class="mb-1">Loading...</h2>
         <p id="emailDisplay" class="text-muted mb-0">Email: Loading...</p>
         <p id="accountType" class="text-muted">Account: Loading...</p>

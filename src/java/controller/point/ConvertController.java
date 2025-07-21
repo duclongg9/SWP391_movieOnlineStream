@@ -25,7 +25,7 @@ public class ConvertController extends HttpServlet {
         String amountStr = req.getParameter("amount");
         try {
             int amount = Integer.parseInt(amountStr);
-            int points = amount / 1000;
+            int points = amount / util.Constants.VND_PER_POINT;
             boolean ok = UserDAO.addPoints(email, points);
             if (ok) out.write("{\"pointAdded\":" + points + "}");
             else { resp.setStatus(500); out.write("{\"error\":\"update failed\"}"); }

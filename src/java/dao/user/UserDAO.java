@@ -2,7 +2,7 @@ package dao.user;
 
 import dao.connect.DBConnection;
 import model.User;
-import util.PasswordUtil;
+import util.PasswordUtil_test;
 
 import java.sql.*;
 import java.util.ArrayList;
@@ -29,6 +29,8 @@ public class UserDAO {
                 u.setPhoneVerified(rs.getBoolean("phone_verified"));
                 u.setOtpCode(rs.getString("otp_code"));
                 u.setOtpExpire(rs.getTimestamp("otp_expire"));
+                u.setPointBalance(rs.getInt("point_balance"));
+                u.setLocked(rs.getBoolean("is_locked"));
                 return u;
             }
         } catch (SQLException e) {
@@ -45,7 +47,7 @@ public class UserDAO {
         if (conn == null) return false;
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, user.getEmail());
-            ps.setString(2, PasswordUtil.hash(user.getPassword()));
+            ps.setString(2, PasswordUtil_test.hash(user.getPassword()));
             ps.setString(3, user.getRole());
             return ps.executeUpdate() == 1;
         } catch (SQLException e) {
@@ -189,7 +191,7 @@ public class UserDAO {
 
     public static User validateUser(String email, String password) {
         User user = findByEmail(email);
-        if (user != null && user.getPassword().equals(PasswordUtil.hash(password))) {
+        if (user != null && user.getPassword().equals(PasswordUtil_test.hash(password))) {
             return user;
         }
         return null;

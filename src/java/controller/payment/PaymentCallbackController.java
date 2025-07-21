@@ -37,7 +37,7 @@ public class PaymentCallbackController extends HttpServlet {
             out.write("{\"error\":\"invalid amount\"}");
             return;
         }
-        int points = amount / 1000;
+        int points = amount / util.Constants.VND_PER_POINT;
         boolean ok = UserDAO.addPoints(email, points);
         if (ok) {
             model.User u = UserDAO.findByEmail(email);

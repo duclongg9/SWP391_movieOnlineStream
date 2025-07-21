@@ -3,7 +3,7 @@ package controller.user;
 import dao.user.UserDAO;
 import model.User;
 import util.JwtUtil;
-import util.PasswordUtil;
+import util.PasswordUtil_test;
 
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -47,6 +47,8 @@ public class UserController extends HttpServlet {
             data.put("phoneVerified", user.isPhoneVerified());
             data.put("picture", user.getProfilePic());
             data.put("role", user.getRole());
+            data.put("points", user.getPointBalance());
+            data.put("walletBalance", user.getPointBalance() * util.Constants.VND_PER_POINT);
             sendJsonResponse(resp, data);
         });
     }
@@ -94,7 +96,7 @@ public class UserController extends HttpServlet {
                 sendJsonResponse(resp, Map.of("error", "Invalid old password"));
                 return;
             }
-            boolean success = UserDAO.changePassword(email, PasswordUtil.hash(newPassword));
+            boolean success = UserDAO.changePassword(email, PasswordUtil_test.hash(newPassword));
             if (success) {
                 sendJsonResponse(resp, Map.of("status", "ok"));
             } else {

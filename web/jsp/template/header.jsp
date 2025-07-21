@@ -44,7 +44,7 @@
 <!--        <a href="#" class="btn" id="logoutLink" style="display:none;">Logout</a>
         <span id="userEmail" style="color:#fff; margin-left:10px; display:none;"></span>-->
         <div class="user-dropdown" id="userDropdown" style="display:none;">
-          <img id="userPic" src="<%=ctx%>/assets/images/avatar-placeholder.jpg" alt="User" style="width:32px;height:32px;border-radius:50%;">
+          <img id="userPic" src="${avatarUrl}" alt="User" style="width:32px;height:32px;border-radius:50%;">
           <div class="user-dropdown-menu" id="userMenu">
             <span id="userName" style="padding:5px 10px; display:block;"></span>
             <span id="userRole" style="padding:0 10px; display:block;font-size:0.8em;color:#ccc;"></span>
