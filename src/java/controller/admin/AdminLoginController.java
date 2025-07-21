@@ -11,6 +11,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
+import util.PasswordUtil;
 
 @WebServlet(urlPatterns = {"/api/admin/login", "/admin/login", "/api/admin/change-password"})
 public class AdminLoginController extends HttpServlet {
@@ -28,7 +29,7 @@ public class AdminLoginController extends HttpServlet {
             String username = req.getParameter("username");
             String password = req.getParameter("password");
             User admin = UserDAO.findAdminByUsername(username);
-            if (admin != null && admin.getPassword().equals(PasswordUtil_test.hash(password))) {
+            if (admin != null && PasswordUtil.check(password, admin.getPassword())) {
                 String token = JwtUtil.generateToken(admin.getEmail());
                 out.write("{\"token\":\"" + token + "\"}");
             } else {
@@ -57,7 +58,7 @@ public class AdminLoginController extends HttpServlet {
                 out.write("{\"error\":\"missing parameters\"}");
                 return;
             }
-            if (!user.getPassword().equals(PasswordUtil_test.hash(oldPassword))) {
+            if (!PasswordUtil.check(oldPassword, user.getPassword())) {
                 resp.setStatus(401);
                 out.write("{\"error\":\"invalid old password\"}");
                 return;

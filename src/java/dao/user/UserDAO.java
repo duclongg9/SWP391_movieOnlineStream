@@ -7,6 +7,7 @@ import util.PasswordUtil_test;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
+import util.PasswordUtil;
 
 public class UserDAO {
     public static User findByEmail(String email) {
@@ -191,7 +192,7 @@ public class UserDAO {
 
     public static User validateUser(String email, String password) {
         User user = findByEmail(email);
-        if (user != null && user.getPassword().equals(PasswordUtil_test.hash(password))) {
+        if (user != null && PasswordUtil.check(password, user.getPassword())) {
             return user;
         }
         return null;
