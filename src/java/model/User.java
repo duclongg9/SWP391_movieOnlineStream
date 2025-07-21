@@ -9,9 +9,13 @@ public class User {
     private String phone;
     private String email;
     private String password;
+    private String profilePic;
     private String ssoProvider;
     private int pointBalance;
     private boolean isLocked;
+    private boolean phoneVerified;
+    private String otpCode;
+    private Timestamp otpExpire;
     private boolean deleted;
     private String role;
     private Timestamp createdAt;
@@ -19,20 +23,41 @@ public class User {
     public User() {}
 
     public User(int id, String username, String fullName, String phone, String email,
-                String password, String ssoProvider, int pointBalance,
-                boolean isLocked, boolean deleted, String role, Timestamp createdAt) {
+                String password, String profilePic, String ssoProvider, int pointBalance,
+                boolean isLocked, boolean phoneVerified, String otpCode, Timestamp otpExpire,
+                boolean deleted, String role, Timestamp createdAt) {
         this.id = id;
         this.username = username;
         this.fullName = fullName;
         this.phone = phone;
         this.email = email;
         this.password = password;
+        this.profilePic = profilePic;
         this.ssoProvider = ssoProvider;
         this.pointBalance = pointBalance;
         this.isLocked = isLocked;
+        this.phoneVerified = phoneVerified;
+        this.otpCode = otpCode;
+        this.otpExpire = otpExpire;
         this.deleted = deleted;
         this.role = role;
         this.createdAt = createdAt;
+    }
+
+    public String getProfilePic() {
+        return profilePic;
+    }
+
+    public void setProfilePic(String profilePic) {
+        this.profilePic = profilePic;
+    }
+
+    public boolean isIsLocked() {
+        return isLocked;
+    }
+
+    public void setIsLocked(boolean isLocked) {
+        this.isLocked = isLocked;
     }
 
     // getters and setters
@@ -62,6 +87,15 @@ public class User {
 
     public boolean isLocked() { return isLocked; }
     public void setLocked(boolean locked) { isLocked = locked; }
+
+    public boolean isPhoneVerified() { return phoneVerified; }
+    public void setPhoneVerified(boolean phoneVerified) { this.phoneVerified = phoneVerified; }
+
+    public String getOtpCode() { return otpCode; }
+    public void setOtpCode(String otpCode) { this.otpCode = otpCode; }
+
+    public Timestamp getOtpExpire() { return otpExpire; }
+    public void setOtpExpire(Timestamp otpExpire) { this.otpExpire = otpExpire; }
 
     public boolean isDeleted() { return deleted; }
     public void setDeleted(boolean deleted) { this.deleted = deleted; }

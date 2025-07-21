@@ -23,7 +23,12 @@ public class UserDAO {
                 u.setFullName(rs.getString("full_name"));
                 u.setEmail(rs.getString("email"));
                 u.setPassword(rs.getString("password"));
+                u.setProfilePic(rs.getString("profile_pic"));
                 u.setRole(rs.getString("role"));
+                u.setPhone(rs.getString("phone"));
+                u.setPhoneVerified(rs.getBoolean("phone_verified"));
+                u.setOtpCode(rs.getString("otp_code"));
+                u.setOtpExpire(rs.getTimestamp("otp_expire"));
                 return u;
             }
         } catch (SQLException e) {
@@ -68,13 +73,94 @@ public class UserDAO {
     }
 
     public static boolean updatePhone(String email, String phone) {
-        String sql = "UPDATE users SET phone = ? WHERE email = ?";
+        String sql = "UPDATE users SET phone = ?, phone_verified = 0 WHERE email = ?";
         Connection conn = DBConnection.getConnection();
         if (conn == null) return false;
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, phone);
             ps.setString(2, email);
             return ps.executeUpdate() == 1;
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            DBConnection.closeConnection(conn);
+        }
+        return false;
+    }
+    
+    public static void updateProfilePic(String email, String picUrl) {
+        String sql = "UPDATE users SET profile_pic=? WHERE email=?";
+        Connection conn = DBConnection.getConnection();
+        if (conn == null) return;
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, picUrl);
+            ps.setString(2, email);
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            DBConnection.closeConnection(conn);
+        }
+    }
+
+
+
+    public static void updateOtp(String email, String code, Timestamp expire) {
+        String sql = "UPDATE users SET otp_code=?, otp_expire=? WHERE email=?";
+        Connection conn = DBConnection.getConnection();
+        if (conn == null) return;
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, code);
+            ps.setTimestamp(2, expire);
+            ps.setString(3, email);
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            DBConnection.closeConnection(conn);
+        }
+    }
+
+    public static void clearOtp(String email) {
+        String sql = "UPDATE users SET otp_code=NULL, otp_expire=NULL WHERE email=?";
+        Connection conn = DBConnection.getConnection();
+        if (conn == null) return;
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, email);
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            DBConnection.closeConnection(conn);
+        }
+    }
+
+    public static boolean setPhoneVerified(String email, boolean verified) {
+        String sql = "UPDATE users SET phone_verified=? WHERE email=?";
+        Connection conn = DBConnection.getConnection();
+        if (conn == null) return false;
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setBoolean(1, verified);
+            ps.setString(2, email);
+            return ps.executeUpdate() == 1;
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            DBConnection.closeConnection(conn);
+        }
+        return false;
+    }
+
+    public static boolean isPhoneVerified(String email) {
+        String sql = "SELECT phone_verified FROM users WHERE email=?";
+        Connection conn = DBConnection.getConnection();
+        if (conn == null) return false;
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, email);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                return rs.getBoolean(1);
+            }
         } catch (SQLException e) {
             e.printStackTrace();
         } finally {
@@ -215,18 +301,19 @@ public class UserDAO {
      * Create a new user authenticated via SSO if they do not already exist.
      * The new user will have role "user" and no password.
      */
-    public static void createSsoUser(String email, String provider, String fullName) {
+    public static void createSsoUser(String email, String provider, String fullName, String profilePic) {
         if (email == null || email.isBlank()) return;
         if (findByEmail(email) != null) return;
 
-        String sql = "INSERT INTO users (email, full_name, sso_provider, role) " +
-                "VALUES (?, ?, ?, 'user')";
+        String sql = "INSERT INTO users (email, full_name, profile_pic, sso_provider, role) " +
+                "VALUES (?, ?, ?, ?, 'user')";
         Connection conn = DBConnection.getConnection();
         if (conn == null) return;
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, email);
             ps.setString(2, fullName == null ? "" : fullName);
-            ps.setString(3, provider);
+            ps.setString(3, profilePic);
+            ps.setString(4, provider);
             ps.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();

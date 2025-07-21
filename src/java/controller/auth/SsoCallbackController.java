@@ -51,6 +51,7 @@ public class SsoCallbackController extends HttpServlet {
         req.getSession().removeAttribute(OAUTH_STATE);
         String email = null;
         String name = null;
+        String picture = null;
         try {
             if ("google".equals(provider)) {
                 System.out.println("=== DEBUG: Starting Google token exchange with code: " + code);
@@ -73,6 +74,7 @@ public class SsoCallbackController extends HttpServlet {
                     System.out.println("=== DEBUG: User JSON: " + userJson);
                     email = SimpleJson.getString(userJson, "email");
                     name = SimpleJson.getString(userJson, "name");
+                    picture = SimpleJson.getString(userJson, "picture");
                 } else {
                     System.out.println("=== DEBUG: Access Token null - Kiểm tra tokenJson");
                 }
@@ -105,7 +107,10 @@ public class SsoCallbackController extends HttpServlet {
             return;
         }
 
-        UserDAO.createSsoUser(email, provider, name == null ? "" : name);
+        UserDAO.createSsoUser(email, provider, name == null ? "" : name, picture);
+        if (picture != null) {
+            UserDAO.updateProfilePic(email, picture);
+        }
         String token = JwtUtil.generateToken(email);
 
         resp.setContentType("text/html;charset=UTF-8");
@@ -113,6 +118,9 @@ public class SsoCallbackController extends HttpServlet {
             out.println("<html><body>");
             out.println("<script>");
             out.println("localStorage.setItem('token', '" + token.replace("'", "\\'") + "');");
+            if (picture != null) {
+                out.println("localStorage.setItem('picture', '" + picture.replace("'", "\\'") + "');");
+            }
             out.println("window.location.href = '" + req.getContextPath() + "/index.jsp';");
             out.println("</script>");
             out.println("</body></html>");

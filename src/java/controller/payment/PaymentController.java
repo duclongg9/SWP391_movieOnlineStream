@@ -65,6 +65,13 @@ public class PaymentController extends HttpServlet {
             resp.getWriter().write("{\"error\":\"user not found\"}");
             return;
         }
+        if (!UserDAO.isPhoneVerified(email)) {
+            resp.setStatus(403);
+            resp.getWriter().write("{\"error\":\"phone not verified\"}");
+            return;
+        }
+
+
 
         String amountStr = req.getParameter("amount");
         int amountVnd;
