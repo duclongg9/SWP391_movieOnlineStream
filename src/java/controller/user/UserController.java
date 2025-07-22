@@ -61,7 +61,9 @@ public class UserController extends HttpServlet {
         }
         processAuthenticatedRequest(req, resp, email -> {
             String phone = req.getParameter("phone");
-            if ((phone == null || phone.isEmpty()) && "application/x-www-form-urlencoded".equalsIgnoreCase(req.getContentType())) {
+            String ctype = req.getContentType();
+            if ((phone == null || phone.isEmpty()) && ctype != null
+                    && ctype.toLowerCase().startsWith("application/x-www-form-urlencoded")) {
                 String body = req.getReader().lines().collect(java.util.stream.Collectors.joining());
                 phone = util.HttpUtil.parseQuery(body).get("phone");
                 if (phone != null) phone = phone.trim();

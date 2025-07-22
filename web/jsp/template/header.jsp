@@ -207,9 +207,9 @@
             .then(r => r.json())
             .then(d => {
               if(nameSpan) nameSpan.textContent = d.fullName || payload.sub;
-              if(roleSpan) roleSpan.textContent = d.role === 'admin' ? 'Admin' : 'Customer';
+              if(roleSpan) roleSpan.textContent = d.role === 'ADMIN' ? 'Admin' : 'Customer';
               if(userPic && d.picture) userPic.src = d.picture;
-              if(d.role === 'admin') {
+              if(d.role === 'ADMIN') {
                 if(dropdown) dropdown.style.display = 'none';
                 if(managerDropdown) managerDropdown.style.display = 'inline-block';
                 const adminLogout = document.getElementById('adminLogout');

@@ -105,6 +105,9 @@
 <main>
   <section class="auth-section">
     <div class="container profile-container">
+        <div class="mb-3">
+        <a href="<%=request.getContextPath()%>/movies" class="btn btn-secondary">&larr; Back Home</a>
+      </div>
       <div class="profile-header">
         <img id="profileImg" src="${avatarUrl}" alt="Profile" class="profile-img">        
         <h2 id="fullName" class="mb-1">Loading...</h2>
@@ -116,12 +119,20 @@
       <div class="card">
         <div class="card-body">
           <h5 class="card-title mb-4">Personal Information</h5>
-          <form id="profileForm">
-            <div class="mb-3">
-              <label for="phoneField" class="form-label">Phone</label>
-              <input type="text" class="form-control" name="phone" id="phoneField" placeholder="Enter your phone number" required />
+          <div class="mb-3">
+            <label class="form-label">Phone</label>
+            <div id="phoneView">
+              <span id="phoneDisplay"></span>
+              <button type="button" id="editPhoneBtn" class="btn btn-sm btn-outline-primary ms-2">Edit</button>
             </div>
-            <button type="submit" class="btn btn-primary w-100">Update Phone</button>
+            <form id="phoneForm" class="d-none mt-2">
+              <div class="input-group">
+                <input type="text" class="form-control" id="phoneInput" placeholder="Enter your phone number" required />
+                <button type="submit" class="btn btn-primary">Save</button>
+                <button type="button" id="cancelPhoneBtn" class="btn btn-secondary">Cancel</button>
+              </div>
+            </form>
+          </div>
           </form>
         </div>
       </div>
@@ -182,7 +193,12 @@ document.addEventListener('DOMContentLoaded', function() {
   const fullName = document.getElementById('fullName');
   const emailDisplay = document.getElementById('emailDisplay');
   const accountType = document.getElementById('accountType');
-  const phoneField = document.getElementById('phoneField');
+  const phoneDisplay = document.getElementById('phoneDisplay');
+  const phoneForm = document.getElementById('phoneForm');
+  const phoneInput = document.getElementById('phoneInput');
+  const phoneView = document.getElementById('phoneView');
+  const editPhoneBtn = document.getElementById('editPhoneBtn');
+  const cancelPhoneBtn = document.getElementById('cancelPhoneBtn');
   const profileImg = document.getElementById('profileImg');
   const walletBalance = document.getElementById('walletBalance');
   const points = document.getElementById('points');
@@ -205,8 +221,8 @@ fetch(base + '/api/user/profile', {headers: {Authorization: 'Bearer ' + token}})
   .then(d => {
     fullName.textContent = d.fullName || 'N/A';
     emailDisplay.textContent = 'Email: ' + (d.email || 'N/A');
-    accountType.textContent = 'Account: ' + (d.role === 'admin' ? 'Admin' : 'Customer');
-    phoneField.value = d.phone || '';
+    accountType.textContent = 'Account: ' + (d.role === 'ADMIN' ? 'Admin' : 'Customer');
+    phoneDisplay.textContent = d.phone || 'Not set';
     walletBalance.textContent = d.walletBalance ? d.walletBalance.toLocaleString() + ' VND' : '0 VND';
     points.textContent = d.points || '0';
     cards.textContent = d.cards ? d.cards.join(', ') : 'No cards added.';
@@ -214,7 +230,13 @@ fetch(base + '/api/user/profile', {headers: {Authorization: 'Bearer ' + token}})
     if(d.picture) localStorage.setItem('picture', d.picture);
   })
   .catch(err => {
-    fullName.textContent = 'Error: ' + err.message;
+    const message = 'Error: ' + err.message;
+    fullName.textContent = message;
+    emailDisplay.textContent = message;
+    accountType.textContent = message;
+    walletBalance.textContent = message;
+    points.textContent = message;
+    cards.textContent = message;
   });
 
 // Fetch purchase history for packages
@@ -246,9 +268,22 @@ fetch(base + '/api/purchase/history', {headers: {Authorization: 'Bearer ' + toke
     packagesTable.style.display = 'none';
   });
 
-document.getElementById('profileForm').addEventListener('submit', async function(e){
+editPhoneBtn.addEventListener('click', () => {
+  phoneInput.value = phoneDisplay.textContent !== 'Not set' ? phoneDisplay.textContent : '';
+  phoneView.style.display = 'none';
+  phoneForm.classList.remove('d-none');
+});
+
+cancelPhoneBtn.addEventListener('click', () => {
+  phoneForm.classList.add('d-none');
+  phoneView.style.display = 'block';
+});
+
+phoneForm.addEventListener('submit', async function(e){
   e.preventDefault();
-  const data = new URLSearchParams(new FormData(e.target));
+  if(!confirm('Are you sure you want to change your phone number?')) return;
+  const data = new URLSearchParams();
+  data.append('phone', phoneInput.value);
   resultDiv.style.display = 'none';
   loading.style.display = 'block';
   try {
@@ -257,10 +292,18 @@ document.getElementById('profileForm').addEventListener('submit', async function
       body: data,
       headers: { Authorization: 'Bearer ' + token }
     });
-    const text = await res.text();
+    const resp = await res.json().catch(() => null);
     loading.style.display = 'none';
-    resultDiv.textContent = text;
-    resultDiv.className = res.ok ? 'result success' : 'result error';
+    if(res.ok && resp && resp.phone){
+      phoneDisplay.textContent = resp.phone;
+      phoneForm.classList.add('d-none');
+      phoneView.style.display = 'block';
+      resultDiv.textContent = 'Updated successfully';
+      resultDiv.className = 'result success';
+    } else {
+      resultDiv.textContent = (resp && resp.error) || 'Update failed';
+      resultDiv.className = 'result error';
+    }
     resultDiv.style.display = 'block';
   } catch (err) {
     loading.style.display = 'none';
@@ -268,6 +311,7 @@ document.getElementById('profileForm').addEventListener('submit', async function
     resultDiv.className = 'result error';
     resultDiv.style.display = 'block';
   }
+  
   });
 });
 </script>
