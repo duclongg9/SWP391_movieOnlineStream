@@ -106,6 +106,24 @@ public class UserDAO {
         }
     }
 
+     /**
+     * Update profile picture only if current DB value is NULL.
+     */
+    public static void updateProfilePicIfNull(String email, String picUrl) {
+        String sql = "UPDATE users SET profile_pic=? WHERE email=? AND profile_pic IS NULL";
+        Connection conn = DBConnection.getConnection();
+        if (conn == null) return;
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, picUrl);
+            ps.setString(2, email);
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            DBConnection.closeConnection(conn);
+        }
+    }
+
 
 
     public static void updateOtp(String email, String code, Timestamp expire) {

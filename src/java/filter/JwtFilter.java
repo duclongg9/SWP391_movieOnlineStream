@@ -20,6 +20,17 @@ public class JwtFilter implements Filter {
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
         HttpServletRequest req = (HttpServletRequest) request;
         HttpServletResponse resp = (HttpServletResponse) response;
+        String path = req.getServletPath();
+
+        // Skip auth check for login and SSO endpoints
+        if ("/api/auth/login".equals(path)
+                || path.startsWith("/api/auth/sso")
+                || "/api/admin/login".equals(path)) {
+            chain.doFilter(request, response);
+            return;
+        }
+
+
         String auth = req.getHeader("Authorization");
         if (auth != null && auth.startsWith("Bearer ")) auth = auth.substring(7);
         String email = JwtUtil.verifyToken(auth);

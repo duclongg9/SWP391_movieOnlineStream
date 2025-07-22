@@ -109,7 +109,8 @@ public class SsoCallbackController extends HttpServlet {
 
         UserDAO.createSsoUser(email, provider, name == null ? "" : name, picture);
         if (picture != null) {
-            UserDAO.updateProfilePic(email, picture);
+            UserDAO.updateProfilePicIfNull(email, picture);
+            req.getSession(true).setAttribute("avatarUrl", picture);
         }
         String token = JwtUtil.generateToken(email);
 

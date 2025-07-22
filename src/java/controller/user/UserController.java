@@ -60,7 +60,14 @@ public class UserController extends HttpServlet {
             return;
         }
         processAuthenticatedRequest(req, resp, email -> {
-            String phone = req.getParameter("phone") != null ? req.getParameter("phone").trim() : null;
+            String phone = req.getParameter("phone");
+            if ((phone == null || phone.isEmpty()) && "application/x-www-form-urlencoded".equalsIgnoreCase(req.getContentType())) {
+                String body = req.getReader().lines().collect(java.util.stream.Collectors.joining());
+                phone = util.HttpUtil.parseQuery(body).get("phone");
+                if (phone != null) phone = phone.trim();
+            } else if (phone != null) {
+                phone = phone.trim();
+            }
             if (phone == null || phone.isEmpty()) {
                 resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
                 sendJsonResponse(resp, Map.of("error", "Missing phone"));

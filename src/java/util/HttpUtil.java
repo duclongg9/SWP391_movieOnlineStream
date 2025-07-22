@@ -62,4 +62,28 @@ public class HttpUtil {
             return sb.toString();
         }
     }
+    
+    /**
+     * Parse a URL encoded query string (e.g. "a=1&b=2") into a map.
+     */
+    public static java.util.Map<String, String> parseQuery(String query) {
+        java.util.Map<String, String> map = new java.util.HashMap<>();
+        if (query == null || query.isEmpty()) return map;
+        String[] pairs = query.split("&");
+        for (String p : pairs) {
+            int idx = p.indexOf('=');
+            String key;
+            String val = "";
+            if (idx >= 0) {
+                key = p.substring(0, idx);
+                if (idx < p.length() - 1) val = p.substring(idx + 1);
+            } else {
+                key = p;
+            }
+            key = java.net.URLDecoder.decode(key, java.nio.charset.StandardCharsets.UTF_8);
+            val = java.net.URLDecoder.decode(val, java.nio.charset.StandardCharsets.UTF_8);
+            map.put(key, val);
+        }
+        return map;
+    }
 }

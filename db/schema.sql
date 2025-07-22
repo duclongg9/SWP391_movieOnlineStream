@@ -1,166 +1,153 @@
--- Schema for Online Film Service Platform
+-- ========================================================
+-- Online-Film Platform · full schema & seed · 2025-07-22
+-- ========================================================
+
 DROP DATABASE IF EXISTS online_film;
-CREATE DATABASE IF NOT EXISTS online_film DEFAULT CHARACTER SET utf8mb4;
+CREATE DATABASE online_film DEFAULT CHARACTER SET utf8mb4;
 USE online_film;
 
--- User Table (Thêm role cho admin)
-CREATE TABLE IF NOT EXISTS users (
-  id INT PRIMARY KEY AUTO_INCREMENT,
-  username VARCHAR(100) UNIQUE,
-  full_name VARCHAR(255),
-  phone VARCHAR(20),
-  phone_verified BOOLEAN DEFAULT FALSE,
-  otp_code VARCHAR(10),
-  otp_expire DATETIME,
-  email VARCHAR(255) UNIQUE,
-  password VARCHAR(255),
-  profile_pic VARCHAR(512),
-  sso_provider ENUM('google','facebook') NULL,
-  point_balance INT DEFAULT 0,
-  is_locked BOOLEAN DEFAULT FALSE,
-  is_deleted BOOLEAN DEFAULT FALSE,
-  role ENUM('user','admin') DEFAULT 'user',
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+-- 1. USERS  ───────────────────────────────────────────────
+CREATE TABLE users (
+  id               INT AUTO_INCREMENT PRIMARY KEY,
+  email            VARCHAR(255) NOT NULL UNIQUE,
+  username         VARCHAR(100) UNIQUE,
+  full_name        VARCHAR(255),
+  phone            VARCHAR(20),
+  phone_verified   BOOLEAN       DEFAULT FALSE,
+  otp_code         VARCHAR(10),
+  otp_expire       DATETIME,
+  profile_pic      VARCHAR(512),
+  sso_provider     ENUM('google') NOT NULL,        -- user chỉ đăng nhập Google
+  password_hash    VARCHAR(255),                   -- NULL cho USER SSO, bắt buộc ADMIN
+  role             ENUM('USER','ADMIN') DEFAULT 'USER',
+  point_balance    INT            DEFAULT 0,
+  is_locked        BOOLEAN        DEFAULT FALSE,
+  is_deleted       BOOLEAN        DEFAULT FALSE,
+  created_at       TIMESTAMP      DEFAULT CURRENT_TIMESTAMP
 );
 
--- Movie Table
-CREATE TABLE IF NOT EXISTS movies (
-  id INT PRIMARY KEY AUTO_INCREMENT,
-  title VARCHAR(255),
-  genre VARCHAR(100),
-  actor VARCHAR(255),
-  video_path VARCHAR(255),
-  price_point INT,
-  description TEXT,
-  duration_min INT,
-  is_deleted BOOLEAN DEFAULT FALSE,
-  encrypted BOOLEAN DEFAULT TRUE
+-- 2. MOVIES  ──────────────────────────────────────────────
+CREATE TABLE movies (
+  id               INT AUTO_INCREMENT PRIMARY KEY,
+  title            VARCHAR(255)  NOT NULL,
+  genre            VARCHAR(100),
+  cast             VARCHAR(255),
+  video_path       VARCHAR(512),                     -- HLS (.m3u8) URL
+  description      TEXT,
+  duration_min     INT,
+  encrypted        BOOLEAN        DEFAULT TRUE,
+  is_deleted       BOOLEAN        DEFAULT FALSE,
+  created_at       TIMESTAMP      DEFAULT CURRENT_TIMESTAMP
 );
 
--- Wallet Table (Hợp nhất vào users.point_balance nếu có thể, nhưng giữ nếu cần log recharge)
-CREATE TABLE IF NOT EXISTS wallet (
-  id INT PRIMARY KEY AUTO_INCREMENT,
-  user_id INT,
-  balance_point INT DEFAULT 0,
-  last_recharged DATETIME,
+-- 3. PACKAGES  ────────────────────────────────────────────
+CREATE TABLE packages (
+  id               INT AUTO_INCREMENT PRIMARY KEY,
+  name             VARCHAR(120)  NOT NULL,
+  description      TEXT,
+  monthly_price    INT           NOT NULL,           -- đơn vị: Point / 30 ngày
+  is_deleted       BOOLEAN       DEFAULT FALSE,
+  created_at       TIMESTAMP     DEFAULT CURRENT_TIMESTAMP
+);
+
+-- 3a. PACKAGE_MOVIES (n‒n)  ──────────────────────────────
+CREATE TABLE package_movies (
+  package_id       INT,
+  movie_id         INT,
+  PRIMARY KEY (package_id, movie_id),
+  FOREIGN KEY (package_id) REFERENCES packages(id),
+  FOREIGN KEY (movie_id)   REFERENCES movies(id)
+);
+
+-- 4. USER_PACKAGES (gói đã mua)  ─────────────────────────
+CREATE TABLE user_packages (
+  id               INT AUTO_INCREMENT PRIMARY KEY,
+  user_id          INT,
+  package_id       INT,
+  start_date       DATE,
+  end_date         DATE,
+  price_point      INT,                                -- ghi nhận khi mua
+  FOREIGN KEY (user_id)    REFERENCES users(id),
+  FOREIGN KEY (package_id) REFERENCES packages(id)
+);
+
+-- 5. TRANSACTIONS (top-up / mua / nâng cấp)  ─────────────
+CREATE TABLE transactions (
+  id               INT AUTO_INCREMENT PRIMARY KEY,
+  user_id          INT,
+  type             ENUM('TOPUP','BUY_PACKAGE','UPGRADE_PACKAGE') NOT NULL,
+  amount_point     INT,                                 -- + / − điểm
+  meta             JSON,
+  created_at       TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   FOREIGN KEY (user_id) REFERENCES users(id)
 );
 
--- Transaction Table (Thêm type cho phân biệt nạp/mua)
-CREATE TABLE IF NOT EXISTS transaction (
-  id INT PRIMARY KEY AUTO_INCREMENT,
-  user_id INT,
-  type ENUM('topup','purchase') DEFAULT 'topup',
-  amount_vnd DECIMAL(12,2),
-  point_earned INT,
-  gateway_status VARCHAR(100),
-  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-  FOREIGN KEY (user_id) REFERENCES users(id)
+-- 6. PROMOTION (mã giảm gói)  ───────────────────────────
+CREATE TABLE promotion (
+  id               INT AUTO_INCREMENT PRIMARY KEY,
+  code             VARCHAR(100) UNIQUE,
+  discount_pct     DECIMAL(5,2) CHECK (discount_pct BETWEEN 0 AND 100),
+  target_package_id INT,
+  valid_until      DATETIME,
+  FOREIGN KEY (target_package_id) REFERENCES packages(id)
 );
 
--- Package Table
-CREATE TABLE IF NOT EXISTS package (
-  id INT PRIMARY KEY AUTO_INCREMENT,
-  name VARCHAR(255),
-  description TEXT,
-  duration_days INT,
-  price_point INT,
-  is_deleted BOOLEAN DEFAULT FALSE,
-  created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+-- 7. WATCH_HISTORY  ──────────────────────────────────────
+CREATE TABLE watch_history (
+  id               INT AUTO_INCREMENT PRIMARY KEY,
+  user_id          INT,
+  movie_id         INT,
+  watched_at       TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  duration_watched INT DEFAULT 0,      -- giây đã xem
+  FOREIGN KEY (user_id)  REFERENCES users(id),
+  FOREIGN KEY (movie_id) REFERENCES movies(id)
 );
 
--- Package-Film Mapping
-CREATE TABLE IF NOT EXISTS package_film (
-  id INT PRIMARY KEY AUTO_INCREMENT,
-  package_id INT,
-  film_id INT,
-  FOREIGN KEY (package_id) REFERENCES package(id),
-  FOREIGN KEY (film_id) REFERENCES movies(id)
-);
+-- ========================================================
+-- SAMPLE DATA
+-- ========================================================
 
--- User Purchase Table
-CREATE TABLE IF NOT EXISTS user_purchase (
-  id INT PRIMARY KEY AUTO_INCREMENT,
-  user_id INT,
-  film_id INT,
-  package_id INT,
-  purchased_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-  expired_at DATETIME,
-  FOREIGN KEY (user_id) REFERENCES users(id),
-  FOREIGN KEY (film_id) REFERENCES movies(id),
-  FOREIGN KEY (package_id) REFERENCES package(id)
-);
-
--- Promotion Table (Sửa foreign key linh hoạt: target_id general, dùng apply_to phân biệt)
-CREATE TABLE IF NOT EXISTS promotion (
-  id INT PRIMARY KEY AUTO_INCREMENT,
-  code VARCHAR(100) UNIQUE,
-  discount_pct DECIMAL(5,2),
-  apply_to ENUM('goi', 'phim'),
-  target_type ENUM('package','movie'),
-  target_id INT,
-  valid_until DATETIME
-);
-
--- Watch History Table (Thêm duration_watched cho báo cáo)
-CREATE TABLE IF NOT EXISTS watch_history (
-  id INT PRIMARY KEY AUTO_INCREMENT,
-  user_id INT,
-  film_id INT,
-  watched_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-  duration_watched INT DEFAULT 0,
-  FOREIGN KEY (user_id) REFERENCES users(id),
-  FOREIGN KEY (film_id) REFERENCES movies(id)
-);
-
--- Sample data
-INSERT INTO movies(title, genre, actor, video_path, price_point, description, duration_min) VALUES
-  ('The Northman','Action','Alexander Skarsgård','/videos/northman.mp4',50,'','0'),
-  ('Doctor Strange in the Multiverse of Madness','Fantasy','Benedict Cumberbatch','/videos/drstrange.mp4',60,'','0');
-
-INSERT INTO users (username, full_name, phone, phone_verified, email, password, profile_pic, role, point_balance, is_deleted)
+-- ADMIN (đăng nhập thủ công) + USER SSO
+INSERT INTO users (email, username, full_name, sso_provider, password_hash, role, point_balance)
 VALUES
-    ('admin','Administrator','0900000000',1,'admin@example.com','8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918',NULL,'admin',0,0),
-    ('user1','User One','0900000001',0,'user1@example.com','8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918',NULL,'user',0,0);
+  ('admin@example.com','admin','Administrator','google',
+   '8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918','ADMIN',0),
+  ('user1@example.com','user1','User One','google',
+   NULL,'USER',120);
 
--- Sample data for wallet
-INSERT INTO wallet (user_id, balance_point, last_recharged)
+-- MOVIES
+INSERT INTO movies (title, genre, cast, video_path, duration_min, description)
 VALUES
-  (1,100,NOW()),
-  (2,200,NOW());
+  ('The Northman','Action','Alexander Skarsgård','/videos/northman.m3u8',137,'Viking revenge saga'),
+  ('Doctor Strange in the Multiverse of Madness','Fantasy','Benedict Cumberbatch',
+   '/videos/drstrange.m3u8',126,'Marvel Phase 4 adventure');
 
--- Sample data for transaction
-INSERT INTO transaction (user_id, amount_vnd, point_earned, gateway_status)
+-- PACKAGES
+INSERT INTO packages (name, description, monthly_price)
 VALUES
-  (1,100000,100,'SUCCESS'),
-  (2,200000,200,'SUCCESS');
+  ('Basic','Access to basic catalogue',80),
+  ('Premium','Access to all movies',150);
 
--- Sample data for package
-INSERT INTO package (name, description, duration_days, price_point)
-VALUES
-  ('Basic Package','Access to basic movies',30,80),
-  ('Premium Package','Access to all movies',30,150);
+-- PACKAGE_MOVIES mapping
+INSERT INTO package_movies (package_id, movie_id) VALUES
+  (1,1),                 -- Basic → The Northman
+  (2,1),(2,2);           -- Premium → cả 2 phim
 
--- Sample data for package_film
-INSERT INTO package_film (package_id, film_id)
+-- USER_PACKAGES (user1 mua Basic hôm nay)
+INSERT INTO user_packages (user_id, package_id, start_date, end_date, price_point)
 VALUES
-  (1,1),
-  (2,1),
-  (2,2);
+  (2,1,CURDATE(),DATE_ADD(CURDATE(), INTERVAL 30 DAY),80);
 
--- Sample data for user_purchase
-INSERT INTO user_purchase (user_id, film_id, package_id, expired_at)
-VALUES
-  (1,NULL,1, DATE_ADD(NOW(), INTERVAL 30 DAY)),
-  (2,2,NULL, DATE_ADD(NOW(), INTERVAL 1 DAY));
+-- TRANSACTIONS
+INSERT INTO transactions (user_id, type, amount_point, meta) VALUES
+  (2,'TOPUP',+120, JSON_OBJECT('gateway','Momo')),
+  (2,'BUY_PACKAGE',-80, JSON_OBJECT('package','Basic'));
 
--- Sample data for promotion
-INSERT INTO promotion (code, discount_pct, apply_to, target_type, target_id, valid_until)
-VALUES
-  ('PROMO10',10.0,'goi','package',1, DATE_ADD(NOW(), INTERVAL 60 DAY));
+-- WATCH_HISTORY
+INSERT INTO watch_history (user_id, movie_id, duration_watched) VALUES
+  (2,1,3600);
 
--- Sample data for watch_history
-INSERT INTO watch_history (user_id, film_id)
+-- PROMOTION
+INSERT INTO promotion (code, discount_pct, target_package_id, valid_until)
 VALUES
-  (1,1),
-  (2,2);
+  ('PROMO10',10.0,1, DATE_ADD(NOW(), INTERVAL 60 DAY));
