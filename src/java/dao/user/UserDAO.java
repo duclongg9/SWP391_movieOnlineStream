@@ -2,7 +2,7 @@ package dao.user;
 
 import dao.connect.DBConnection;
 import model.User;
-import util.PasswordUtil_test;
+
 
 import java.sql.*;
 import java.util.ArrayList;
@@ -23,7 +23,7 @@ public class UserDAO {
                 u.setUsername(rs.getString("username"));
                 u.setFullName(rs.getString("full_name"));
                 u.setEmail(rs.getString("email"));
-                u.setPassword(rs.getString("password"));
+                u.setPassword(rs.getString("password_hash"));
                 u.setProfilePic(rs.getString("profile_pic"));
                 u.setRole(rs.getString("role"));
                 u.setPhone(rs.getString("phone"));
@@ -43,12 +43,12 @@ public class UserDAO {
     }
 
     public static boolean create(User user) {
-        String sql = "INSERT INTO users (email, password, role) VALUES (?, ?, ?)";
+        String sql = "INSERT INTO users (email, password_hash, role) VALUES (?, ?, ?)";
         Connection conn = DBConnection.getConnection();
         if (conn == null) return false;
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, user.getEmail());
-            ps.setString(2, PasswordUtil_test.hash(user.getPassword()));
+            ps.setString(2, PasswordUtil.hash(user.getPassword()));
             ps.setString(3, user.getRole());
             return ps.executeUpdate() == 1;
         } catch (SQLException e) {
@@ -193,7 +193,7 @@ public class UserDAO {
 
     
     public static boolean changePassword(String email, String newHashedPassword) {
-        String sql = "UPDATE users SET password = ? WHERE email = ?";
+        String sql = "UPDATE users SET password_hash = ? WHERE email = ?";
         Connection conn = DBConnection.getConnection();
         if (conn == null) return false;
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -279,7 +279,34 @@ public class UserDAO {
     }
 
     public static User findAdminByUsername(String username) {
-        // Implement if needed
+        String sql = "SELECT * FROM users WHERE username=? AND role='ADMIN' AND is_deleted=0";
+        Connection conn = DBConnection.getConnection();
+        if (conn == null) return null;
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, username);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                User u = new User();
+                u.setId(rs.getInt("id"));
+                u.setUsername(rs.getString("username"));
+                u.setFullName(rs.getString("full_name"));
+                u.setEmail(rs.getString("email"));
+                u.setPassword(rs.getString("password_hash"));
+                u.setProfilePic(rs.getString("profile_pic"));
+                u.setRole(rs.getString("role"));
+                u.setPhone(rs.getString("phone"));
+                u.setPhoneVerified(rs.getBoolean("phone_verified"));
+                u.setOtpCode(rs.getString("otp_code"));
+                u.setOtpExpire(rs.getTimestamp("otp_expire"));
+                u.setPointBalance(rs.getInt("point_balance"));
+                u.setLocked(rs.getBoolean("is_locked"));
+                return u;
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            DBConnection.closeConnection(conn);
+        }
         return null;
     }
 

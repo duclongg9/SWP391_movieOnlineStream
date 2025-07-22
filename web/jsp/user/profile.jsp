@@ -213,9 +213,24 @@ document.addEventListener('DOMContentLoaded', function() {
   if (profileImg && storedPic) profileImg.src = storedPic;
 
 // Fetch profile data
+function handleUnauthorized(r){
+  if(r.status === 401){
+    localStorage.removeItem('token');
+    localStorage.removeItem('picture');
+    window.location.href = base + '/login';
+    return true;
+  }
+  return false;
+}
+
+
 fetch(base + '/api/user/profile', {headers: {Authorization: 'Bearer ' + token}})
-  .then(r => {
-    if (!r.ok) throw new Error('Failed to fetch profile');
+  .then(async r => {
+    if (handleUnauthorized(r)) throw new Error('Unauthorized');
+    if (!r.ok) {
+      const msg = await r.json().catch(() => ({error:'Failed to fetch profile'}));
+      throw new Error(msg.error || 'Failed to fetch profile');
+    }
     return r.json();
   })
   .then(d => {
@@ -230,19 +245,26 @@ fetch(base + '/api/user/profile', {headers: {Authorization: 'Bearer ' + token}})
     if(d.picture) localStorage.setItem('picture', d.picture);
   })
   .catch(err => {
-    const message = 'Error: ' + err.message;
-    fullName.textContent = message;
-    emailDisplay.textContent = message;
-    accountType.textContent = message;
-    walletBalance.textContent = message;
-    points.textContent = message;
-    cards.textContent = message;
+    resultDiv.textContent = 'Error: ' + err.message;
+    resultDiv.className = 'result error';
+    resultDiv.style.display = 'block';
+    fullName.textContent = 'N/A';
+    emailDisplay.textContent = 'Email: N/A';
+    accountType.textContent = 'Account: N/A';
+    phoneDisplay.textContent = 'N/A';
+    walletBalance.textContent = '0 VND';
+    points.textContent = '0';
+    cards.textContent = 'No cards added.';
   });
 
 // Fetch purchase history for packages
 fetch(base + '/api/purchase/history', {headers: {Authorization: 'Bearer ' + token}})
-  .then(r => {
-    if (!r.ok) throw new Error('Failed to fetch history');
+  .then(async r => {
+    if (handleUnauthorized(r)) throw new Error('Unauthorized');
+    if (!r.ok) {
+      const msg = await r.json().catch(() => ({error:'Failed to fetch history'}));
+      throw new Error(msg.error || 'Failed to fetch history');
+    }
     return r.json();
   })
   .then(list => {
@@ -263,9 +285,13 @@ fetch(base + '/api/purchase/history', {headers: {Authorization: 'Bearer ' + toke
     });
   })
   .catch(err => {
-    noPackages.textContent = 'Error loading packages: ' + err.message;
+    const msg = 'Error loading packages: ' + err.message;
+    noPackages.textContent = msg;
     noPackages.style.display = 'block';
     packagesTable.style.display = 'none';
+    resultDiv.textContent = msg;
+    resultDiv.className = 'result error';
+    resultDiv.style.display = 'block';
   });
 
 editPhoneBtn.addEventListener('click', () => {

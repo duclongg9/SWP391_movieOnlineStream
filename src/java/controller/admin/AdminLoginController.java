@@ -3,7 +3,7 @@ package controller.admin;
 import dao.user.UserDAO;
 import model.User;
 import util.JwtUtil;
-import util.PasswordUtil_test;
+
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
@@ -63,7 +63,7 @@ public class AdminLoginController extends HttpServlet {
                 out.write("{\"error\":\"invalid old password\"}");
                 return;
             }
-            boolean updated = UserDAO.changePassword(email, PasswordUtil_test.hash(newPassword));
+            boolean updated = UserDAO.changePassword(email, PasswordUtil.hash(newPassword));
             if (updated) {
                 out.write("{\"status\":\"success\"}");
             } else {

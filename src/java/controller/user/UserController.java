@@ -3,7 +3,7 @@ package controller.user;
 import dao.user.UserDAO;
 import model.User;
 import util.JwtUtil;
-import util.PasswordUtil_test;
+import util.PasswordUtil;
 
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -105,7 +105,7 @@ public class UserController extends HttpServlet {
                 sendJsonResponse(resp, Map.of("error", "Invalid old password"));
                 return;
             }
-            boolean success = UserDAO.changePassword(email, PasswordUtil_test.hash(newPassword));
+            boolean success = UserDAO.changePassword(email, PasswordUtil.hash(newPassword));
             if (success) {
                 sendJsonResponse(resp, Map.of("status", "ok"));
             } else {
