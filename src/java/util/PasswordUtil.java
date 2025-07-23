@@ -17,4 +17,16 @@ public class PasswordUtil {
     public static boolean check(String password, String hashed) {
         return hashed != null && BCrypt.checkpw(password, hashed);
     }
+    
+    /**
+     * Command line helper to generate a BCrypt hash.
+     * Usage: java util.PasswordUtil <password>
+     */
+    public static void main(String[] args) {
+        if (args.length == 0) {
+            System.out.println("Usage: java util.PasswordUtil <password>");
+            return;
+        }
+        System.out.println(hash(args[0]));
+    }
 }

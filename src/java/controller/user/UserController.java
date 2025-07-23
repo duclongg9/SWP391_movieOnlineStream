@@ -10,6 +10,7 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -40,6 +41,17 @@ public class UserController extends HttpServlet {
                 sendJsonResponse(resp, Map.of("error", "User not found"));
                 return;
             }
+            
+            // ensure avatarUrl persists in session so AvatarFilter keeps working
+            HttpSession session = req.getSession(false);
+            if (session != null && session.getAttribute("avatarUrl") == null) {
+                String pic = user.getProfilePic();
+                if (pic != null && !pic.isBlank()) {
+                    session.setAttribute("avatarUrl", pic);
+                }
+            }
+
+
             Map<String,Object> data = new HashMap<>();
             data.put("email", user.getEmail());
             data.put("fullName", user.getFullName());

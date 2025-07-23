@@ -21,9 +21,14 @@ public class AvatarFilter implements Filter {
         String avatar = null;
         if (session != null) {
             avatar = (String) session.getAttribute("avatarUrl");
-            if (avatar == null) {
+            if (avatar == null || avatar.isBlank()) {
                 User u = (User) session.getAttribute("authUser");
-                if (u != null) avatar = u.getProfilePic();
+                if (u != null) {
+                    avatar = u.getProfilePic();
+                    if (avatar != null && !avatar.isBlank()) {
+                        session.setAttribute("avatarUrl", avatar);
+                    }
+                }
             }
         }
         if (avatar == null || avatar.isBlank()) {

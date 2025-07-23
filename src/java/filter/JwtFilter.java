@@ -10,6 +10,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import model.User;
 import dao.user.UserDAO;
+import jakarta.servlet.http.HttpSession;
 import util.JwtUtil;
 
 import java.io.IOException;
@@ -42,7 +43,14 @@ public class JwtFilter implements Filter {
         }
         User user = UserDAO.findByEmail(email);
         if (user != null) {
-            req.getSession(true).setAttribute("authUser", user);
+            HttpSession session = req.getSession(true);
+            session.setAttribute("authUser", user);
+            if (session.getAttribute("avatarUrl") == null) {
+                String pic = user.getProfilePic();
+                if (pic != null && !pic.isBlank()) {
+                    session.setAttribute("avatarUrl", pic);
+                }
+            }
         }
         chain.doFilter(request, response);
     }

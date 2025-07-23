@@ -224,7 +224,10 @@ function handleUnauthorized(r){
 }
 
 
-fetch(base + '/api/user/profile', {headers: {Authorization: 'Bearer ' + token}})
+fetch(base + '/api/user/profile', {
+  headers: {Authorization: 'Bearer ' + token},
+  credentials: 'include'
+})
   .then(async r => {
     if (handleUnauthorized(r)) throw new Error('Unauthorized');
     if (!r.ok) {
@@ -316,7 +319,8 @@ phoneForm.addEventListener('submit', async function(e){
     const res = await fetch(base + '/api/user/profile', {
       method: 'PUT',
       body: data,
-      headers: { Authorization: 'Bearer ' + token }
+      headers: { Authorization: 'Bearer ' + token },
+      credentials: 'include'
     });
     const resp = await res.json().catch(() => null);
     loading.style.display = 'none';

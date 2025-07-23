@@ -111,7 +111,7 @@ CREATE TABLE watch_history (
 INSERT INTO users (email, username, full_name, sso_provider, password_hash, role, point_balance)
 VALUES
   ('admin@example.com','admin','Administrator','google',
-   '8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918','ADMIN',0),
+   '$2a$10$NHmg6V9NEPYjdfYgbn6the5aElERAvsJWGn9Fq5XStHAtxSVwH9.6','ADMIN',0),
   ('user1@example.com','user1','User One','google',
    NULL,'USER',120);
 

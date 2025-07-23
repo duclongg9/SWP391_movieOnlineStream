@@ -203,7 +203,7 @@
           if (adminLink && payload.sub === 'admin@example.com') {
             adminLink.style.display = 'inline-block';
           }
-          fetch(base + '/api/user/profile', {headers:{Authorization:'Bearer '+token}})
+          fetch(base + '/api/user/profile', {headers:{Authorization:'Bearer '+token}, credentials:'include'})
             .then(r => r.json())
             .then(d => {
               if(nameSpan) nameSpan.textContent = d.fullName || payload.sub;
