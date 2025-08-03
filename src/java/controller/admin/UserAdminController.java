@@ -30,10 +30,15 @@ public class UserAdminController extends HttpServlet {
             return;
         }
         if (!isAdmin(req)) { resp.setStatus(401); return; }
-        List<User> users = UserDAO.findAllUsers();
+        int page = 1;
+        int size = 10;
+        try { page = Integer.parseInt(req.getParameter("page")); } catch (Exception e) {}
+        try { size = Integer.parseInt(req.getParameter("size")); } catch (Exception e) {}
+        List<User> users = UserDAO.findPage((page-1)*size, size);
+        int total = UserDAO.count();
         resp.setContentType("application/json;charset=UTF-8");
         PrintWriter out = resp.getWriter();
-        out.write(SimpleJson.usersToJson(users));
+        out.write("{\"total\":"+total+",\"page\":"+page+",\"users\":"+SimpleJson.usersToJson(users)+"}");
     }
 
     @Override

@@ -96,6 +96,43 @@ public class PackageDAO {
         return list;
     }
 
+    public static List<Package> findPage(int offset, int limit) {
+        String sql = "SELECT * FROM package WHERE is_deleted=0 LIMIT ? OFFSET ?";
+        Connection conn = DBConnection.getConnection();
+        List<Package> list = new ArrayList<>();
+        if (conn == null) return list;
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, limit);
+            ps.setInt(2, offset);
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                list.add(map(rs));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            DBConnection.closeConnection(conn);
+        }
+        return list;
+    }
+
+    public static int count() {
+        String sql = "SELECT COUNT(*) FROM package WHERE is_deleted=0";
+        Connection conn = DBConnection.getConnection();
+        if (conn == null) return 0;
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                return rs.getInt(1);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            DBConnection.closeConnection(conn);
+        }
+        return 0;
+    }
+
     private static Package map(ResultSet rs) throws SQLException {
         Package p = new Package();
         p.setId(rs.getInt("id"));

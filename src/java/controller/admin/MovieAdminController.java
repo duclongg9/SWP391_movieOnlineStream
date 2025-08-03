@@ -31,10 +31,15 @@ public class MovieAdminController extends HttpServlet {
             return;
         }
         if (!isAdmin(req)) { resp.setStatus(401); return; }
-        List<Movie> movies = MovieDAO.findAll();
+        int page = 1;
+        int size = 10;
+        try { page = Integer.parseInt(req.getParameter("page")); } catch (Exception e) {}
+        try { size = Integer.parseInt(req.getParameter("size")); } catch (Exception e) {}
+        List<Movie> movies = MovieDAO.findPage((page-1)*size, size);
+        int total = MovieDAO.count();
         resp.setContentType("application/json;charset=UTF-8");
         PrintWriter out = resp.getWriter();
-        out.write(SimpleJson.moviesToJson(movies));
+        out.write("{\"total\":"+total+",\"page\":"+page+",\"movies\":"+SimpleJson.moviesToJson(movies)+"}");
     }
 
     @Override

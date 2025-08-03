@@ -28,15 +28,21 @@
         </thead>
         <tbody></tbody>
       </table>
+      <div id="pagination" class="pagination"></div>
     </div>
   </section>
 </main>
 <script>
 const base = '<%=request.getContextPath()%>';
 const token = localStorage.getItem('adminToken');
-function load(){
-  fetch(base+'/api/admin/promotions',{headers:{Authorization:'Bearer '+token}})
-    .then(r=>r.json()).then(list=>{
+let currentPage = 1;
+const pageSize = 10;
+function load(page=currentPage){
+  currentPage = page;
+  fetch(base+'/api/admin/promotions?page='+page+'&size='+pageSize,{headers:{Authorization:'Bearer '+token}})
+    .then(r=>r.json()).then(res=>{
+      const list=res.promotions;
+      const total=res.total;
       const tb=document.querySelector('#promoTable tbody');
       tb.innerHTML='';
       list.forEach(p=>{
@@ -47,19 +53,33 @@ function load(){
           `<td><button data-id="${p.id}" data-delete="true">Delete</button></td>`;
         tb.appendChild(tr);
       });
+      renderPagination(total);
     });
+}
+
+function renderPagination(total){
+  const totalPages = Math.ceil(total/pageSize);
+  const pag=document.getElementById('pagination');
+  pag.innerHTML='';
+  for(let i=1;i<=totalPages;i++){
+    const btn=document.createElement('button');
+    btn.textContent=i;
+    if(i===currentPage) btn.disabled=true;
+    btn.addEventListener('click',()=>load(i));
+    pag.appendChild(btn);
+  }
 }
 document.getElementById('promoForm').addEventListener('submit',async e=>{
   e.preventDefault();
   const data=new URLSearchParams(new FormData(e.target));
   await fetch(base+'/api/admin/promotions',{method:'POST',headers:{Authorization:'Bearer '+token'},body:data});
   e.target.reset();
-  load();
+  load(currentPage);
 });
 document.addEventListener('click',async e=>{
   if(e.target.dataset.delete){
     await fetch(base+'/api/admin/promotion/'+e.target.dataset.id,{method:'DELETE',headers:{Authorization:'Bearer '+token'}});
-    load();
+    load(currentPage);
   }
 });
 load();

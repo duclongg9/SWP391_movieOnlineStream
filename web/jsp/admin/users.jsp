@@ -21,15 +21,21 @@
         </thead>
         <tbody></tbody>
       </table>
+      <div id="pagination" class="pagination"></div>
     </div>
   </section>
 </main>
 <script>
 const base = '<%=request.getContextPath()%>';
 const token = localStorage.getItem('adminToken');
-function load(){
-  fetch(base + '/api/admin/users',{headers:{Authorization:'Bearer '+token}})
-    .then(r=>r.json()).then(list=>{
+let currentPage = 1;
+const pageSize = 10;
+function load(page=currentPage){
+  currentPage = page;
+  fetch(base + '/api/admin/users?page='+page+'&size='+pageSize,{headers:{Authorization:'Bearer '+token}})
+    .then(r=>r.json()).then(res=>{
+      const list=res.users;
+      const total=res.total;
       const tb=document.querySelector('#userTable tbody');
       tb.innerHTML='';
       list.forEach(u=>{
@@ -41,14 +47,28 @@ function load(){
           `<button data-id="${u.id}" data-delete="true">Delete</button></td>`;
         tb.appendChild(tr);
       });
+      renderPagination(total);
     });
+}
+
+function renderPagination(total){
+  const totalPages = Math.ceil(total/pageSize);
+  const pag=document.getElementById('pagination');
+  pag.innerHTML='';
+  for(let i=1;i<=totalPages;i++){
+    const btn=document.createElement('button');
+    btn.textContent=i;
+    if(i===currentPage) btn.disabled=true;
+    btn.addEventListener('click',()=>load(i));
+    pag.appendChild(btn);
+  }
 }
 document.addEventListener('click',e=>{
   if(e.target.dataset){
     if(e.target.dataset.action){
-      fetch(base + '/api/admin/user/'+e.target.dataset.id+'/'+e.target.dataset.action,{method:'PATCH',headers:{Authorization:'Bearer '+token}}).then(load);
+      fetch(base + '/api/admin/user/'+e.target.dataset.id+'/'+e.target.dataset.action,{method:'PATCH',headers:{Authorization:'Bearer '+token}}).then(()=>load(currentPage));
     } else if(e.target.dataset.delete){
-      fetch(base + '/api/admin/user/'+e.target.dataset.id,{method:'DELETE',headers:{Authorization:'Bearer '+token}}).then(load);
+      fetch(base + '/api/admin/user/'+e.target.dataset.id,{method:'DELETE',headers:{Authorization:'Bearer '+token}}).then(()=>load(currentPage));
     }
   }
 });

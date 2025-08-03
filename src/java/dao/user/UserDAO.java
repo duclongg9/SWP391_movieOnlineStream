@@ -241,6 +241,47 @@ public class UserDAO {
         return list;
     }
 
+    public static List<User> findPage(int offset, int limit) {
+        String sql = "SELECT * FROM users WHERE is_deleted = 0 LIMIT ? OFFSET ?";
+        Connection conn = DBConnection.getConnection();
+        List<User> list = new ArrayList<>();
+        if (conn == null) return list;
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, limit);
+            ps.setInt(2, offset);
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                User u = new User();
+                u.setId(rs.getInt("id"));
+                u.setEmail(rs.getString("email"));
+                u.setRole(rs.getString("role"));
+                list.add(u);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            DBConnection.closeConnection(conn);
+        }
+        return list;
+    }
+
+    public static int count() {
+        String sql = "SELECT COUNT(*) FROM users WHERE is_deleted = 0";
+        Connection conn = DBConnection.getConnection();
+        if (conn == null) return 0;
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                return rs.getInt(1);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            DBConnection.closeConnection(conn);
+        }
+        return 0;
+    }
+
     public static boolean lockUser(int id, boolean lock) {
         String sql = "UPDATE users SET locked = ? WHERE id = ?";
         Connection conn = DBConnection.getConnection();

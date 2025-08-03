@@ -97,6 +97,33 @@ public class PromotionDAO {
         return list;
     }
 
+    public static List<Promotion> findPage(int offset, int limit) {
+        String sql = "SELECT * FROM promotion LIMIT ? OFFSET ?";
+        Connection conn = DBConnection.getConnection();
+        List<Promotion> list = new ArrayList<>();
+        if (conn == null) return list;
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, limit);
+            ps.setInt(2, offset);
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) list.add(map(rs));
+        } catch (SQLException e) { e.printStackTrace(); }
+        finally { DBConnection.closeConnection(conn); }
+        return list;
+    }
+
+    public static int count() {
+        String sql = "SELECT COUNT(*) FROM promotion";
+        Connection conn = DBConnection.getConnection();
+        if (conn == null) return 0;
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) return rs.getInt(1);
+        } catch (SQLException e) { e.printStackTrace(); }
+        finally { DBConnection.closeConnection(conn); }
+        return 0;
+    }
+
     private static Promotion map(ResultSet rs) throws SQLException {
         Promotion p = new Promotion();
         p.setId(rs.getInt("id"));
