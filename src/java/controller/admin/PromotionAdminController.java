@@ -47,7 +47,12 @@ public class PromotionAdminController extends HttpServlet {
             return;
         }
         if (!isAdmin(req)) { resp.setStatus(401); return; }
-        List<Promotion> list = PromotionDAO.findAll();
+        int page = 1;
+        int size = 10;
+        try { page = Integer.parseInt(req.getParameter("page")); } catch (Exception e) {}
+        try { size = Integer.parseInt(req.getParameter("size")); } catch (Exception e) {}
+        List<Promotion> list = PromotionDAO.findPage((page-1)*size, size);
+        int total = PromotionDAO.count();
         java.util.List<java.util.Map<String,Object>> arr = new java.util.ArrayList<>();
         for (Promotion p : list) {
             arr.add(java.util.Map.of(
@@ -62,7 +67,7 @@ public class PromotionAdminController extends HttpServlet {
         }
         resp.setContentType("application/json;charset=UTF-8");
         PrintWriter out = resp.getWriter();
-        out.write(SimpleJson.listToJson(arr));
+        out.write("{\"total\":"+total+",\"page\":"+page+",\"promotions\":"+SimpleJson.listToJson(arr)+"}");
     }
 
     @Override

@@ -31,10 +31,15 @@ public class PackageAdminController extends HttpServlet {
             return;
         }
         if (!isAdmin(req)) { resp.setStatus(401); return; }
-        List<Package> packages = PackageDAO.findAll();
+        int page = 1;
+        int size = 10;
+        try { page = Integer.parseInt(req.getParameter("page")); } catch (Exception e) {}
+        try { size = Integer.parseInt(req.getParameter("size")); } catch (Exception e) {}
+        List<Package> packages = PackageDAO.findPage((page-1)*size, size);
+        int total = PackageDAO.count();
         resp.setContentType("application/json;charset=UTF-8");
         PrintWriter out = resp.getWriter();
-        out.write(util.SimpleJson.packagesToJson(packages));
+        out.write("{\"total\":"+total+",\"page\":"+page+",\"packages\":"+util.SimpleJson.packagesToJson(packages)+"}");
     }
 
     @Override
