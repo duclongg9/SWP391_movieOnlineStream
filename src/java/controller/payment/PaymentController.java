@@ -4,6 +4,7 @@ import dao.payment.TransactionDAO;
 import dao.user.UserDAO;
 import util.JwtUtil;
 import util.VNPayConfig;
+import util.EmailUtil;
 
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -29,6 +30,7 @@ import java.util.TimeZone;
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
+import jakarta.mail.MessagingException;
 
 @WebServlet(urlPatterns = {"/api/user/payment/create", "/vnpay_return", "/vnpay_ipn"})
 public class PaymentController extends HttpServlet {
@@ -162,9 +164,23 @@ public class PaymentController extends HttpServlet {
             String txnRef = req.getParameter("vnp_TxnRef");
             String rspCode = req.getParameter("vnp_ResponseCode");
             if ("00".equals(rspCode)) {
-                // Success, update user points
-                // Extract userId from orderInfo or txnRef, assume stored
-                // For simplicity, redirect to success page
+                String orderInfo = req.getParameter("vnp_OrderInfo");
+                int userId = 0;
+                if (orderInfo != null && orderInfo.startsWith("Nap tien cho user")) {
+                    try {
+                        userId = Integer.parseInt(orderInfo.substring(orderInfo.lastIndexOf(' ') + 1));
+                    } catch (NumberFormatException ignored) {}
+                }
+                String email = UserDAO.getEmailById(userId);
+                if (email != null) {
+                    try {
+                        int amount = Integer.parseInt(req.getParameter("vnp_Amount")) / 100;
+                        EmailUtil.sendEmail(email, "Payment successful",
+                                "Bạn đã thanh toán thành công " + amount + " VND cho giao dịch " + txnRef);
+                    } catch (MessagingException | NumberFormatException e) {
+                        e.printStackTrace();
+                    }
+                }
                 resp.sendRedirect("/payment/success");
             } else {
                 resp.sendRedirect("/payment/fail");
