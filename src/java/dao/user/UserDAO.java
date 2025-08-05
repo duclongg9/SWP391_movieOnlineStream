@@ -213,6 +213,24 @@ public class UserDAO {
         return 0;
     }
 
+    public static String getEmailById(int id) {
+        String sql = "SELECT email FROM users WHERE id = ? AND is_deleted = 0";
+        Connection conn = DBConnection.getConnection();
+        if (conn == null) return null;
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, id);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                return rs.getString(1);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            DBConnection.closeConnection(conn);
+        }
+        return null;
+    }
+
     public static boolean isAdmin(String email) {
         User u = findByEmail(email);
         return u != null && "admin".equals(u.getRole());

@@ -6,6 +6,7 @@ import dao.user.UserDAO;
 import model.Movie;
 import model.User;
 import util.JwtUtil;
+import util.EmailUtil;
 
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -14,6 +15,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
+import jakarta.mail.MessagingException;
 
 @WebServlet("/api/purchase/movie/*")
 public class MoviePurchaseController extends HttpServlet {
@@ -42,6 +44,12 @@ public class MoviePurchaseController extends HttpServlet {
         boolean ok = UserDAO.addPoints(email, -mv.getPricePoint());
         if (ok) {
             PurchaseDAO.addMoviePurchase(u.getId(), filmId);
+            try {
+                EmailUtil.sendEmail(email, "Movie purchase successful",
+                        "Bạn đã mua phim " + mv.getTitle() + " với giá " + mv.getPricePoint() + " point.");
+            } catch (MessagingException e) {
+                e.printStackTrace();
+            }
             out.write("{\"status\":\"purchased\"}");
         } else {
             resp.setStatus(500); out.write("{\"error\":\"purchase failed\"}");

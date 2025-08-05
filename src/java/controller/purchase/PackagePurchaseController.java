@@ -8,6 +8,7 @@ import model.Package;
 import model.Promotion;
 import model.User;
 import util.JwtUtil;
+import util.EmailUtil;
 
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -16,6 +17,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
+import jakarta.mail.MessagingException;
 
 @WebServlet("/api/purchase/package/*")
 public class PackagePurchaseController extends HttpServlet {
@@ -54,6 +56,12 @@ public class PackagePurchaseController extends HttpServlet {
         boolean ok = UserDAO.addPoints(email, -price);
         if (ok) {
             PurchaseDAO.addPackagePurchase(u.getId(), pkgId, pkg.getDurationDays());
+            try {
+                EmailUtil.sendEmail(email, "Package purchase successful",
+                        "Bạn đã mua gói " + pkg.getName() + " với giá " + price + " point.");
+            } catch (MessagingException e) {
+                e.printStackTrace();
+            }
             out.write("{\"status\":\"purchased\",\"price\":" + price + "}");
         } else {
             resp.setStatus(500); out.write("{\"error\":\"purchase failed\"}");
